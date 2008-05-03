@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<title>UI/Droppables - jQuery JavaScript Library</title>
+		<script type="text/javascript" src="javascripts/jquery-latest.js"></script>
+    <script src="javascripts/jquery.dimensions.js" type="text/javascript"></script>
+  <script src="javascripts/ui.base.js"></script>
+<script src="javascripts/ui.draggable.js"></script>
+  <script src="javascripts/ui.draggable.ext.js"></script>
+<script src="javascripts/ui.droppable.js"></script>
+
+    <script type="text/javascript">
+      function extractId(obj) {
+        tokens = obj.attr('id').split('-');
+        return tokens[tokens.length-1];
+      }
+
+      function showHostDetail() {
+            person_id = extractId($(this));
+            $('.host-detail div').hide();
+            $('#person-detail-' + person_id).show();
+      }
+      
+      $(function() {
+        $('.visitors li').draggable({helper: 'clone'});
+        $('.visitors').droppable({
+          accept: 'li',
+          drop: function(ev, ui) {
+            $(this).find('ul').append(ui.draggable);
+            setTimeout(function () { $('.hosts').trigger('repaint') }, 1);
+          }
+        });
+        $('.hosts li').droppable({
+          accept: 'li',
+          over: showHostDetail,
+          drop: function(ev, ui) {
+            $(this).find('ul').append(ui.draggable);
+            setTimeout(function () { $('.hosts').trigger('repaint') }, 1);
+          }
+        });
+
+        $('.hosts').bind('repaint', function() {
+          $(this).find('li.host').each(function() {
+            $(this).find('.count').text(+$(this).find('ul li').length);
+
+            count = $(this).find('.count').text() + 0;
+            max   = $(this).find('.max').text() + 0;
+
+            $(this).removeClass('full');
+            $(this).removeClass('overfull');
+
+            if (count == max)
+              $(this).addClass('full');
+            else if (count > max)
+              $(this).addClass('overfull');
+          });    
+        });
+
+        $('.visitors li').mouseover(function () {
+          if (!$.ui.ddmanager.current) {
+            person_id = extractId($(this));
+            $('.visitor-detail div').hide();
+            $('#person-detail-' + person_id).show();
+          }
+        });
+
+        $('.hosts li').mouseover(showHostDetail)
+      });
+    </script>
+    <style>
+.visitors, .hosts {
+  border: solid 1px black;
+  vertical-align: top;
+  padding: 5px;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+ul ul {
+  margin-left: 10px;
+}
+
+.visitor-detail {
+  width: 150px;
+}
+
+.visitor-detail div,
+.host-detail div {
+  display: none;
+}
+li {
+	cursor: pointer;
+	z-index: 100;
+}
+
+.full {
+  background-color: orange;
+}
+.overfull {
+  background-color: red;
+}
+    </style>
+  </head>  
+  <body>
+    <table
+      <tr>
+        <td class="visitor-detail">
+          <div id="person-detail-1">
+            Name: Xavier Shay<br />
+            Age: 21
+          </div>
+          <div id="person-detail-2">
+            Name: Lauren Yee<br />
+            Age: 23
+          </div>
+          <div id="person-detail-3">
+            Name: Laura Perriam<br />
+            Age: 22
+          </div>
+          <div id="person-detail-4">
+            Name: Joel Kohn<br />
+            Age: 23
+          </div>
+        </td>
+        <td class="visitors">
+          <h2>Visitors</h2>
+          <ul>
+            <li id='person-header-1' class='dietary'>Xavier</li>
+            <li id='person-header-2'>Loz</li>
+            <li id='person-header-3' class='smoker'>Laura</li>
+            <li id='person-header-4'>Joel</li>
+          </ul>
+        </td>
+        <td class="hosts">
+          <h2>Hosts</h2>
+          <ul>
+            <li class="host" id='person-header-5'>Ben <span class='count'>0</span>/<span class='max'>1</span><ul></ul></li>
+            <li class="host" id='person-header-6' class='dietary smoker'>Henry <span class='count'>0</span>/<span class='max'>2</span><ul></ul></li>
+            <li class="host" id='person-header-7' class='full'>Angus <span class='count'>0</span>/<span class='max'>1</span><ul></ul></li>
+          </ul>
+        </td>
+        <td class="host-detail">
+          <div id="person-detail-5">
+            Name: Ben A<br />
+            Age: 22
+          </div>
+          <div id="person-detail-6">
+            Name: Henry B<br />
+            Age: 27
+          </div>
+          <div id="person-detail-7">
+            Name: Angus C<br />
+            Age: 32
+          </div>
+        </td>
+      </tr>
+    </table>  
+  </body>
+</html>
