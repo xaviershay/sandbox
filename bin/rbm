@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+# usage: rbm 1001 1002
+ARGV.collect {|x| x.to_i }.each do |revision|
+  cmd = "svn merge -r#{revision-1}:#{revision} svn+ssh://xshay@svn.redbubble.com/home/svn/redbubble/trunk ."
+  puts `#{cmd}`
+end
