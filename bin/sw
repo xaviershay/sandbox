@@ -1,3 +1,0 @@
-#!/usr/bin/env ruby
-# usage: sw branches/messaging
-`svn switch svn+ssh://xshay@svn.redbubble.com/home/svn/redbubble/#{ARGV[0]}`
