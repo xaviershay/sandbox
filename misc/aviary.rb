@@ -2,24 +2,26 @@ require 'rubygems'
 require 'expectations'
 require 'ruby2ruby'
 
-K = lambda {|x| lambda { x } }
-S = lambda {|x| 
-      lambda {|y| 
-        lambda {|z| x[z][y[z]] }}}
-I = lambda {|x| S[K][K][x] }
-M = lambda {|x| I[x][I[x]]}
-B = lambda {|x|
-      lambda {|y|
-        lambda {|z| S[S[K]][K][x][y][z] }}}
-W = lambda {|x|
-      lambda {|y| S[S][K[I]][x][y] }}
-L = lambda {|x|
-      lambda {|y| S[B][K[M]][x][y] }}
-T = lambda {|x|
-      lambda {|y| B[S[I]][K][x][y] }}      
-C = lambda {|x|
-      lambda {|y|
-        lambda {|z| S[B][K[T]][x][y][z] }}}
+alias :L :lambda
+K = L{|x|
+      L{ x }}
+S = L{|x| 
+      L{|y| 
+        L{|z| x[z][y[z]] }}}
+I = L{|x| S[K][K][x] }
+M = L{|x| I[x][I[x]]}
+B = L{|x|
+      L{|y|
+        L{|z| S[S[K]][K][x][y][z] }}}
+W = L{|x|
+      L{|y| S[S][K[I]][x][y] }}
+L = L{|x|
+      L{|y| S[B][K[M]][x][y] }}
+T = L{|x|
+      L{|y| B[S[I]][K][x][y] }}      
+C = L{|x|
+      L{|y|
+        L{|z| S[B][K[T]][x][y][z] }}}
 
 def map(char)
   {'K' => K}[char]
