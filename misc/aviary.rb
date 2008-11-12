@@ -7,6 +7,10 @@ S = lambda {|x|
       lambda {|y| 
         lambda {|z| x[z][y[z]] }}}
 I = lambda {|x| S[K][K][x] }
+M = lambda {|x| I[x][I[x]]}
+B = lambda {|x|
+      lambda {|y|
+        lambda {|z| S[S[K]][K][x][y][z] }}}
 
 def map(char)
   {'K' => K}[char]
@@ -57,5 +61,17 @@ Expectations do
 
   expect 1 do
     I[1]
+  end
+
+  expect K[K].to_ruby do
+    M[K].to_ruby
+  end
+
+  expect S[S].to_ruby do
+    M[S].to_ruby
+  end
+
+  expect K[S[K]].to_ruby do
+    B[K][S][K].to_ruby
   end
 end
