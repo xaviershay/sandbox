@@ -102,3 +102,76 @@ Expectations do
     S[W][K].to_ruby
   end
 end
+
+class Molecule
+  def initialize
+    @args = []
+  end
+
+  def to_s
+    label + @args.collect {|x| x.to_s }.join('')
+  end
+
+  def [](molecule)
+    @args << molecule
+    explode!
+  end
+
+  def explode!
+    if @args.length == num_args
+      self.execute.explode!
+    else
+      self
+    end
+  end
+end
+
+class Sclass < Molecule
+  def num_args
+    3
+  end
+
+  def label
+    'S'
+  end
+
+  def execute
+    x, y, z = *@args
+    x[y][x[z]]
+  end
+end
+
+class Kclass < Molecule
+  def num_args
+    2
+  end
+
+  def label
+    'K'
+  end
+
+  def execute
+    x, y = *@args
+    x
+  end
+end
+
+class Testing 
+  def k
+    Kclass.new
+  end
+
+  def s
+    Sclass.new
+  end
+
+  def initialize
+    puts k.to_s
+    puts k[k].to_s
+    puts k[k][k].to_s
+    puts s.to_s
+    puts s[k][k][s].to_s
+  end
+end
+
+Testing.new
