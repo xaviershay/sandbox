@@ -1,0 +1,14 @@
+= yaml_helper
+
+Adds transient fields and post-deserialization hooks to yaml4r, the built in
+Ruby YAML serializer
+
+== Getting Started
+
+1. Check example.rb for simplest usage
+2. See http://rhnh.net/2006/06/25/yaml-tutorial for a much better introduction
+
+== Meta
+Author: Xavier Shay (xavier@rhnh.net)
+Revisions:
+  0.2 (2006-06-14) - Initial public release
