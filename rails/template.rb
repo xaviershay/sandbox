@@ -24,7 +24,7 @@ gem 'faker'
 generate 'rspec:install'
 generate 'steak:install'
 
-get 'http://github.com/rails/jquery-ujs/raw/master/src/rails.js', 'public/javascripts/rails.js'
+get 'https://github.com/rails/jquery-ujs/raw/master/src/rails.js', 'public/javascripts/rails.js'
 get 'http://code.jquery.com/jquery-1.4.3.js',                     'public/javascripts/jquery-1.4.3.js'
 
 src = 'https://github.com/xaviershay/sandbox/raw/master/rails'
