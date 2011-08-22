@@ -6,35 +6,52 @@
 ; Forward declarations
 (declare env-get env-set env-extend seq-to-map)
 (declare context context-exp context-env)
-(declare self-evaluating? if-eval seq-eval map-eval)
-(declare do-apply primitive-fn? primitive-fns)
+(declare self-eval? if-eval seq-eval map-eval)
+(declare do-apply primitive-fn? primitive-fns fn-apply pr-apply)
 (declare make-fn fn-args fn-body)
 
-(defn do-eval [exp env] "Main eval loop"
+(defmacro def-context-fn 
+  "Defines a fn that takes as its sole argument a context, and creates bindings 
+  `c`, `exp` and `env` from that context for use in the fn."
+  [name arg-names & body]
+  (let [c#   (nth arg-names 0)
+        exp# (nth arg-names 1)
+        env# (nth arg-names 2)]
+  `(defn ~name [~c#]
+     (let [~exp# (context-exp ~c#)
+           ~env# (context-env ~c#)]
+       ~@body))))
+
+(def-context-fn do-eval [c exp env]; "Main eval loop"
   (let [tagged? #(= % (first exp))]
-    (cond (self-evaluating? exp) (context exp env)
-          (symbol? exp)          (context (env-get env exp) env)
-          (tagged? 'set)         (context (last exp) (env-set env (seq-to-map (rest exp))))
-          (tagged? 'if)          (if-eval exp env)
-          (tagged? 'fn)          (context (make-fn exp env) env)
-          (tagged? 'begin)       (seq-eval (rest exp) env)
-          (list? exp)            (do-apply (first exp) (rest exp) env)
+    (cond (self-eval? exp) c
+          (symbol? exp)    (context (env-get env exp) env)
+          (tagged? 'set)   (context (last exp) (env-set env (seq-to-map (rest exp))))
+          (tagged? 'if)    (if-eval c)
+          (tagged? 'fn)    (context (make-fn c) env)
+          (tagged? 'begin) (seq-eval (context (rest exp) env))
+          (list? exp)      (do-apply c)
           :else (context 'fail env))))
 
-(defn do-apply [f arg-values env] "Main apply function"
-  (let [arg-values-eval (map-eval arg-values env)
-        fn-result
-          (if (primitive-fn? f)
-            (apply (primitive-fns f) (context-exp arg-values-eval))
-            (let [env (env-extend env (fn-args f) (context-exp arg-values-eval))]
-              (first (do-eval (fn-body f) env))))]
-    (context fn-result (context-env arg-values-eval))))
+(def-context-fn do-apply [c exp env] ; "Main apply function"
+  (let [f         (first exp)
+        args-context (map-eval (context (rest exp) env))
+        args         (context-exp args-context)
+        env          (context-env args-context)
+        applier      (if (primitive-fn? f) pr-apply fn-apply)]
+    (context (applier env f args) env)))
 
-(defn context [exp env] [exp env])
-(def context-exp first)
-(def context-env last)
+(defn pr-apply [env f args]
+  (apply (primitive-fns f) args))
+(defn fn-apply [env f args]
+    (let [env (env-extend env (fn-args f) args)]
+      (-> (do-eval (context (fn-body f) env)) context-exp)))
 
-(defn make-fn [exp env]
+(defn context [exp env] {'exp exp, 'env env})
+(defn context-exp [c] (c 'exp))
+(defn context-env [c] (c 'env))
+
+(def-context-fn make-fn [c exp env]
   (list 'procedure (nth exp 1) (nth exp 2) env))
 (defn fn-args [f] (nth f 1))
 (defn fn-body [f] (nth f 2))
@@ -63,45 +80,46 @@
 (defn primitive-fn? [f]
   (contains? primitive-fns f))
 
-(defn self-evaluating? [exp]
+(defn self-eval? [exp]
   (cond (number? exp) true
         (string? exp) true
         (instance? Boolean exp) true
         :else         false))
-(defn if-eval [exp env]
+
+(def-context-fn if-eval [c exp env]
   (let [predicate   (nth exp 1)
         consequent  (nth exp 2)
-        alternative (if (= 4 (count exp)) (nth exp 3) false)]
-    (let [predicate-eval   (do-eval predicate env)
-          predicate-result (first predicate-eval)
-          env              (last predicate-eval)]
-      (if predicate-result
-        (do-eval consequent env)
-        (do-eval alternative env)))))
+        alternative (if (= 4 (count exp)) (nth exp 3) false)
+
+        predicate-context (do-eval (context predicate env))
+        predicate-result  (context-exp predicate-context)
+        env               (context-env predicate-context)]
+    (do-eval (if predicate-result
+      (context consequent  env)
+      (context alternative env)))))
 
 (defn map-reducer [a x]
-  (let [result (do-eval x (last a))]
-    (context (conj (first a) (first result)) (last result))))
+  (let [result (do-eval (context x (context-env a)))]
+    (context (conj (context-exp a) (context-exp result)) (context-env result))))
 (defn last-exp-reducer [a x]
-  (do-eval x (last a)))
-(defn make-seq-eval [reducer]
-  (fn [exps env]
-    (reduce reducer (context [] env) exps)))
-(def seq-eval (make-seq-eval last-exp-reducer))
-(def map-eval (make-seq-eval map-reducer))
+  (do-eval (context x (context-env a))))
+(def-context-fn seq-eval [c exp env]
+  (reduce last-exp-reducer (context nil env) exp))
+(def-context-fn map-eval [c exp env]
+  (reduce map-reducer      (context [] env) exp))
 
 ; Tests
 (defn run [exp env]
-  (do-eval exp env))
+  (do-eval (context exp env)))
 
 (defn run-val
   ([exp] (run-val exp {}))
-  ([exp env] (first (run exp [env])))
+  ([exp env] (-> (run exp [env]) context-exp))
   )
 
 (defn run-env
   ([exp] (run-env exp {}))
-  ([exp env] (first (last (run exp [env]))))
+  ([exp env] (-> (run exp [env]) context-env first))
   )
 
 (deftest evaluator-tests
@@ -115,6 +133,7 @@
          (is (= 1      (run-val '((fn [] 1)))))
          (is (= 1      (run-val '((fn [] x)) {'x 1})))
          (is (= 1      (run-val '((fn [x] x) 1) {'x 2})))
+         (is (= 2      (run-val '((fn [y] x) (set x 2)) {'x 1})))
          (is (= 2      (run-val '(begin ((fn [x] x) 1) x) {'x 2})))
          (is (= false  (run-val '(if false 1))))
          (is (= 1      (run-val '(if true 1 2))))
