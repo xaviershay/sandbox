@@ -1,6 +1,6 @@
 > import Test.HUnit
-> import Data.List
 > import Char
+> import List
 
 Problem 8
 ---------
@@ -30,12 +30,16 @@ given below.
 >   "05886116467109405077541002256983155200055935729725" ++
 >   "71636269561882670428252483600823257530420752963450"
 
-> eulerEight input = maximum . map product $ consecutive 5 input
+My first solution used a cumbersome arrangement of `splitAt` calls to compute a
+list of all consecutive numbers. I was then made aware of the `tails` function,
+when combined with `take 5` does essentially the same thing. It does return
+sequences of less than 5 digits (from the end of the string), but these do not
+need to be filtered since their product will never be more than the same string
+with an extra preceeding digit.
 
-> consecutive l input = map toIntArray $ map (substring l) [0..length input-l]
+> eulerEight input = maximum . map (product . take 5) . tails $ digits
 >   where
->     substring l x = fst $ splitAt l (snd $ splitAt x input)
->     toIntArray    = map digitToInt
+>     digits = map digitToInt input
 
 > testsEight =
 >   [ "#8 problem" ~: 40824 ~=? eulerEight number
