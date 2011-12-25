@@ -97,7 +97,7 @@ possible numbers and filter them.
 
 > palindrome x = x' == reverse x' where x' = show x
 
-> eulerFour r = maximum $ [x * y | x <- r, y <- r, palindrome $ x * y]
+> eulerFour r = maximum $ [x * y | x <- r, y <- r, x <= y, palindrome $ x * y]
 
 > testsFour =
 >   [ "#4 test"    ~: 9009   ~=? eulerFour [10..99]
