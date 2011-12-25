@@ -1,5 +1,6 @@
 > import Test.HUnit
 > import Data.List
+> import Char
 
 Problem 8
 ---------
@@ -34,7 +35,7 @@ given below.
 > consecutive l input = map toIntArray $ map (substring l) [0..length input-l]
 >   where
 >     substring l x = fst $ splitAt l (snd $ splitAt x input)
->     toIntArray    = map (\x -> read[x] :: Int)
+>     toIntArray    = map digitToInt
 
 > testsEight =
 >   [ "#8 problem" ~: 40824 ~=? eulerEight number
