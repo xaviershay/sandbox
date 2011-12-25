@@ -30,8 +30,6 @@ given below.
 >   "71636269561882670428252483600823257530420752963450"
 
 > eulerEight input = maximum . map product $ consecutive 5 input
->   where
->     product = (foldl1 (*))
 
 > consecutive l input = map toIntArray $ map (substring l) [0..length input-l]
 >   where
