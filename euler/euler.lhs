@@ -18,6 +18,8 @@ List functions will be used extensively.
 
 > import List
 
+> import Debug.Trace
+
 Problem 1
 ---------
 
@@ -57,9 +59,32 @@ From there, the solution is trivial.
 >   , "#2 problem" ~: 4613732 ~=? eulerTwo 4000000
 >   ]
 
+Problem 3
+---------
+
+ > The prime factors of 13195 are 5, 7, 13 and 29.
+
+ > What is the largest prime factor of the number 600851475143
+
+First attempt, inefficient solution (~16s).
+
+> roundedSqrt = round . sqrt . fromIntegral
+> isPrime number
+>   | even number = False
+>   | True        = (all (\x -> rem number x /= 0) [3,5..roundedSqrt number])
+> eulerThree number = last $ [x | x <- [2..max], isPrime x, rem number x == 0]
+>   where max = roundedSqrt number
+> testsThree =
+>   [ "#2 test"    ~: 29   ~=? eulerThree 13195
+>   , "#2 problem" ~: 6857 ~=? eulerThree 600851475143
+>   ]
+
 Epilogue
 --------
 
 Run all given test cases as the main function of this file.
 
-> main = runTestTT $ TestList ( testsOne ++ testsTwo )
+> main = runTestTT $ TestList ( testsOne
+>                            ++ testsTwo
+>                            ++ testsThree
+>                             )
