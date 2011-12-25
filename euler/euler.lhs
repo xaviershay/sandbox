@@ -84,6 +84,26 @@ With this fact, we can write a solution without any explicit check for
 >   , "#2 problem" ~: 6857 ~=? eulerThree 600851475143
 >   ]
 
+Problem 4
+---------
+
+ > A palindromic number reads the same both ways. The largest palindrome made
+ > from the product of two 2-digit numbers is 9009 = 91 99.
+
+ > Find the largest palindrome made from the product of two 3-digit numbers.
+
+The input set is relatively small, so it suffices to generate a list of all
+possible numbers and filter them.
+
+> palindrome x = x' == reverse x' where x' = show x
+
+> eulerFour r = maximum $ [x * y | x <- r, y <- r, palindrome $ x * y]
+
+> testsFour =
+>   [ "#4 test"    ~: 9009   ~=? eulerFour [10..99]
+>   , "#4 problem" ~: 906609 ~=? eulerFour [100..999]
+>   ]
+
 Epilogue
 --------
 
@@ -92,4 +112,5 @@ Run all given test cases as the main function of this file.
 > main = runTestTT $ TestList ( testsOne
 >                            ++ testsTwo
 >                            ++ testsThree
+>                            ++ testsFour
 >                             )
