@@ -14,6 +14,10 @@ expressed as HUnit tests at the bottom of the file.
 
 > import Test.HUnit
 
+List functions will be used extensively.
+
+> import List
+
 Problem 1
 ---------
 
@@ -22,10 +26,8 @@ Problem 1
 
   > Find the sum of all the multiples of 3 or 5 below 1000.
 
-Generate a range of all integers in the required range, then filter it using
-list comprehensions.
-
-> eulerOne max = sum $ [x | x <- [1..max-1], x `mod` 3 == 0 || x `mod` 5 == 0]
+> eulerOne max = sum . nub $ (multiplesOf 3) ++ (multiplesOf 5)
+>   where  multiplesOf x = [x,x*2..max-1]
 > testsOne =
 >   [ "#1 given"   ~: 23 ~=? eulerOne 10
 >   , "#1 problem" ~: 233168 ~=? eulerOne 1000
