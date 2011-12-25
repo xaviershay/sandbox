@@ -80,8 +80,8 @@ With this fact, we can write a solution without any explicit check for
 > eulerThree x = last $ primeFactors x x 2
 
 > testsThree =
->   [ "#2 test"    ~: 29   ~=? eulerThree 13195
->   , "#2 problem" ~: 6857 ~=? eulerThree 600851475143
+>   [ "#3 test"    ~: 29   ~=? eulerThree 13195
+>   , "#3 problem" ~: 6857 ~=? eulerThree 600851475143
 >   ]
 
 Problem 4
