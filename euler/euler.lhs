@@ -108,6 +108,11 @@ It is know that the answer will be six digits long (maximum length of two
 This tells us that the answer must be divisible by 11, which allows the input
 set to be trimmed considerably, yielding an order of magnitude speed up.
 
+Intuitively, the maximum palindrome will be the result of two digits in the
+nine hundred range, which allows us to scope the search space even further.
+While this may be presumptious, if no solution is found it is easy enough to
+drop the lower bound.
+
 > palindrome x = x' == reverse x' where x' = show x
 
 > eulerFour r = maximum $ [x * y | x <- r, y <- r', palindrome $ x * y]
@@ -116,7 +121,7 @@ set to be trimmed considerably, yielding an order of magnitude speed up.
 
 > testsFour =
 >   [ "#4 test"    ~: 9009   ~=? eulerFour [10..99]
->   , "#4 problem" ~: 906609 ~=? eulerFour [100..999]
+>   , "#4 problem" ~: 906609 ~=? eulerFour [900..999]
 >   ]
 
 Epilogue
