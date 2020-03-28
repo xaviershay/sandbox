@@ -95,7 +95,13 @@ function Board({rows, columns}) {
   )
 }
 
+// For rounded inner borders:
+// * Create a div with size border*2,  border-radius 50% (a circle)
+// * Absolute position to left/bottom, with negative margin if needed (will depend on corner)
+// * clip path on parent div
 function Cell({x, y, selected, value, onClick}) {
+  const [bounds, setBounds] = useState(null);
+
   return <div
     className={classNames("cell", {
       firstInRow: x === 0,
@@ -109,6 +115,18 @@ function Cell({x, y, selected, value, onClick}) {
     data-x={x}
     data-y={y}
     onClick={onClick}
+
+    // TODO: Do something with this
+    onMouseDown={e => console.log("drag start", e.clientX - bounds[0], e)}
+    ref={el => {
+      if (el) {
+        const rect = el.getBoundingClientRect()
+        const newBounds = [rect.x, rect.y]
+        if (!isEqual(bounds, newBounds)) {
+          setBounds(newBounds)
+        }
+      }
+    }}
   >
     <span className="value">{value}</span>
   </div>

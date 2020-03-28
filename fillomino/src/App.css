@@ -25,6 +25,9 @@
 	align-items: center;
 	align-content: stretch;
   user-select: none;
+
+  /* TODO: Use for rounded inner corners */
+  clip-path: polygon(0% 0%, 0% 100%, 100% 100%, 100% 0%);
 }
 
 .cell.firstInRow {
