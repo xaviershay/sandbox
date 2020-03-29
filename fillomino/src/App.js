@@ -364,7 +364,15 @@ function Cell({x, y, selected, data, onClick, neighbours}) {
     data-y={y}
     onClick={onClick}
   >
-    <span className="value">{value}</span>
+    <span
+      className="value"
+      style={{
+      }}
+    >{value}</span>
+    {borders.bottom && <div className="border bottom" ></div> }
+    {borders.top && <div className="border top" ></div> }
+    {borders.left && <div className="border left" ></div> }
+    {borders.right && <div className="border right" ></div> }
     {corners.bottomLeft &&
       <div
         className="corner bottomLeft"
