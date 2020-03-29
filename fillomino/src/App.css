@@ -21,11 +21,12 @@
 	flex-wrap: nowrap;
 	justify-content: center;
 	align-items: center;
-	align-content: stretch;
+  align-content: stretch;
+
   user-select: none;
 
   /* TODO: Use for rounded inner corners */
-  clip-path: polygon(-1px -1px, -1px 100%, 100% 100%, 100% -1px);
+  /*clip-path: polygon(-1px -1px, -1px 100%, 100% 100%, 100% -1px);*/
 }
 
 /* TODO: bring this back with extra divs rather than special casing */

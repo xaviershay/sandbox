@@ -217,7 +217,7 @@ function Board({rows, columns}) {
         {x: startPoint.x, y: startPoint.y - 1},
         {x: startPoint.x, y: startPoint.y + 1},
       ].filter(p => inRange(p.x, 0, columns + 1) && inRange(p.y, 0, rows + 1))
-      
+
       if (possiblePoints.length === 0) {
         throw new Error("Assertion failed: no possible points")
       }
@@ -242,25 +242,30 @@ function Board({rows, columns}) {
     // TODO: Sometimes a click event registers at same time, but we don't want
     // both! Probably replace click handler with something here.
     if (startPoint && endPoint) {
+      let newGrid = grid
       if (endPoint.y === startPoint.y) {
         const topCell = [endPoint.y - 1, Math.min(startPoint.x, endPoint.x)]
         const bottomCell = [endPoint.y, Math.min(startPoint.x, endPoint.x)]
 
-        const newGrid = grid
-          .updateIn([...topCell, "borders", "bottom"], x => !x)
-          .updateIn([...bottomCell, "borders", "top"], x => !x)
+        if (topCell[0] >= 0)
+          newGrid = newGrid.updateIn([...topCell, "borders", "bottom"], x => !x);
 
-        setGrid(newGrid);
+        if (bottomCell[0] < columns)
+          newGrid = newGrid.updateIn([...bottomCell, "borders", "top"], x => !x)
+
       } else if (endPoint.x === startPoint.x) {
         const leftCell = [Math.min(startPoint.y, endPoint.y), endPoint.x - 1]
         const rightCell = [Math.min(startPoint.y, endPoint.y), endPoint.x]
 
-        const newGrid = grid
-          .updateIn([...leftCell, "borders", "right"], x => !x)
-          .updateIn([...rightCell, "borders", "left"], x => !x)
+        if (leftCell[1] >= 0)
+          newGrid = newGrid.updateIn([...leftCell, "borders", "right"], x => !x);
 
-        setGrid(newGrid);
+        if (rightCell[1] < columns)
+          newGrid = newGrid.updateIn([...rightCell, "borders", "left"], x => !x)
+      } else {
+        throw new Error("Assertion failed: shouldn't be able to get here")
       }
+      setGrid(newGrid);
     }
 
     setStartPoint(null);
