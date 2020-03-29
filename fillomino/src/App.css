@@ -25,9 +25,11 @@
   user-select: none;
 
   /* TODO: Use for rounded inner corners */
-  clip-path: polygon(0% 0%, 0% 100%, 100% 100%, 100% 0%);
+  clip-path: polygon(-1px -1px, -1px 100%, 100%, 100% -1px);
 }
 
+/* TODO: bring this back with extra divs rather than special casing */
+/*
 .cell.firstInRow {
   border-left: solid 1px grey;
 }
@@ -35,6 +37,7 @@
 .cell.firstInColumn {
   border-top: solid 1px grey;
 }
+*/
 
 .cell .value {
   display: block;
@@ -50,8 +53,36 @@
 .cell.borderTop { border-top: solid 3px; }
 .cell.borderBottom { border-bottom: solid 3px; }
 
+.corner {
+  position: absolute;
+  background-color: black;
+  border-radius: 20%;
+  width: 6px;
+  height: 6px;
+}
+
+.corner.bottomLeft {
+  margin-left: -3px;
+  margin-bottom: -4px;
+}
+
+.corner.bottomRight {
+  margin-right: -4px;
+  margin-bottom: -4px;
+}
+
+.corner.topLeft {
+  margin-left: -3px;
+  margin-top: -3px;
+}
+
+.corner.topRight {
+  margin-right: -4px;
+  margin-top: -3px;
+}
 
 .startPoint {
+  display: none;
   position: absolute;
   background-color: green;
   border-radius: 50%;

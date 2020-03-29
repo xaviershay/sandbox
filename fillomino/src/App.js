@@ -67,6 +67,51 @@ function Board({rows, columns}) {
       value: 4,
       borders: {
         "left": false,
+        "right": true,
+        "top": true,
+        "bottom": true,
+      }
+    })
+    .setIn([1,1], {
+      value: 3,
+      borders: {
+        "left": true,
+        "right": true,
+        "top": false,
+        "bottom": false,
+      }
+    })
+    .setIn([1,2], {
+      value: 3,
+      borders: {
+        "left": true,
+        "right": false,
+        "top": true,
+        "bottom": true,
+      }
+    })
+    .setIn([0,2], {
+      value: 5,
+      borders: {
+        "left": false,
+        "right": false,
+        "top": false,
+        "bottom": true,
+      }
+    })
+    .setIn([2,0], {
+      value: 5,
+      borders: {
+        "left": false,
+        "right": false,
+        "top": true,
+        "bottom": false,
+      }
+    })
+    .setIn([2,2], {
+      value: 5,
+      borders: {
+        "left": false,
         "right": false,
         "top": true,
         "bottom": false,
@@ -222,6 +267,13 @@ function Board({rows, columns}) {
     setEndPoint(null);
   }
 
+  const neighbours = (x,y) => { return {
+    left: x > 0 ? lookupCell(x - 1, y) : null,
+    right: x < columns - 1 ? lookupCell(x + 1, y) : null,
+    top: y > 0 ? lookupCell(x, y - 1) : null,
+    bottom: y < rows - 1 ? lookupCell(x, y + 1) : null,
+  }}
+
   return (
     <div
       ref={el => {
@@ -248,6 +300,7 @@ function Board({rows, columns}) {
           <Cell
             x={x}
             y={y}
+            neighbours={neighbours(x, y)}
             data={lookupCell(x, y)}
             selected={isEqual([y, x], selected)}
             onClick={handleClick(x, y)}
@@ -281,8 +334,15 @@ function Board({rows, columns}) {
 // * Create a div with size border*2,  border-radius 50% (a circle)
 // * Absolute position to left/bottom, with negative margin if needed (will depend on corner)
 // * clip path on parent div
-function Cell({x, y, selected, data, onClick}) {
+function Cell({x, y, selected, data, onClick, neighbours}) {
   const {value, borders} = data;
+
+  const corners = {
+    bottomLeft: neighbours.left && neighbours.bottom && !borders.left && neighbours.left.borders.bottom && !borders.bottom && neighbours.bottom.borders.left,
+    bottomRight: neighbours.right && neighbours.bottom && !borders.right && neighbours.right.borders.bottom && !borders.bottom && neighbours.bottom.borders.right,
+    topLeft: neighbours.left && neighbours.top && !borders.left && neighbours.left.borders.top && !borders.top && neighbours.top.borders.left,
+    topRight: neighbours.right && neighbours.top && !borders.right && neighbours.right.borders.top && !borders.top && neighbours.top.borders.right,
+  }
 
   return <div
     className={classNames("cell", {
@@ -305,6 +365,42 @@ function Cell({x, y, selected, data, onClick}) {
     onClick={onClick}
   >
     <span className="value">{value}</span>
+    {corners.bottomLeft &&
+      <div
+        className="corner bottomLeft"
+        style={{
+          left: 0,
+          bottom: 0
+        }}
+      ></div>
+    }
+    {corners.bottomRight &&
+      <div
+        className="corner bottomRight"
+        style={{
+          right: 0,
+          bottom: 0
+        }}
+      ></div>
+    }
+    {corners.topLeft &&
+      <div
+        className="corner topLeft"
+        style={{
+          left: 0,
+          top: 0
+        }}
+      ></div>
+    }
+    {corners.topRight &&
+      <div
+        className="corner topRight"
+        style={{
+          right: 0,
+          top: 0
+        }}
+      ></div>
+    }
   </div>
 }
 export default App;
