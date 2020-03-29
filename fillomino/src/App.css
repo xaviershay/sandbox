@@ -4,16 +4,14 @@
 }
 
 .board {
-  display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-	justify-content: flex-start;
-	align-items: flex-start;
-	align-content: flex-start;
-  box-sizing: border-box;
+  position: relative;
+  background-color: rgb(240, 240, 240);
 }
 
 .cell {
+  position: absolute;
+
+  background-color: white;
   box-sizing: border-box;
   border-right: solid 1px grey;
   border-bottom: solid 1px grey;
@@ -51,3 +49,14 @@
 .cell.borderLeft { border-left: solid 3px; }
 .cell.borderTop { border-top: solid 3px; }
 .cell.borderBottom { border-bottom: solid 3px; }
+
+
+.startPoint {
+  position: absolute;
+  background-color: green;
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  margin-top: -4px;
+}

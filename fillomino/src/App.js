@@ -3,6 +3,8 @@
 import React, {useState} from 'react';
 import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
+import inRange from 'lodash/inRange';
+import sortBy from 'lodash/sortBy';
 import useHotkeys from '@reecelucas/react-use-hotkeys';
 import { List, Set } from 'immutable';
 
@@ -10,8 +12,8 @@ import './App.css';
 
 // TODO:
 // * Inner corners for borders
+// * Outer borders
 // * Auto-border
-// * Can add/remove border using drag interface
 // * serder state
 // * store state in URL
 // * separate out "givens" from guesses
@@ -36,6 +38,10 @@ function App() {
 
 const cellSizePx = 50;
 
+// This is important to be able to a) get mouse drag events outside the grid,
+// and b) to make room for rendering outside borders.
+const boardPadding = cellSizePx;
+
 function Board({rows, columns}) {
   const newCell : () => CellType = () => { return {
     value: null,
@@ -57,9 +63,19 @@ function Board({rows, columns}) {
         "bottom": true,
       }
     })
+    .setIn([1,0], {
+      value: 4,
+      borders: {
+        "left": false,
+        "right": false,
+        "top": true,
+        "bottom": false,
+      }
+    })
 
   const [selected, setSelected] = useState(null);
   const [grid, setGrid] = useState(initialGrid);
+  const [bounds, setBounds] = useState({left: 0, top: 0});
 
   const decomposeValue : (number) => Array<number> =
     n => [n].concat(n >= 10 ? decomposeValue(Math.floor(n / 10)) : [])
@@ -67,6 +83,7 @@ function Board({rows, columns}) {
     Set(grid.flatMap(rows => rows.map(c => c.value).filter(Boolean).flatMap(decomposeValue)))
 
   const handleClick = (x, y) => () => {
+    console.log("click");
     setSelected([y, x])
   }
 
@@ -122,8 +139,110 @@ function Board({rows, columns}) {
     }
     return cell;
   }
+
+  const [startPoint, setStartPoint] = useState(null)
+  const [endPoint, setEndPoint] = useState(null)
+
+  const handleMouseDown = e => {
+    const
+      x = e.clientX - bounds.left - boardPadding,
+      y = e.clientY - bounds.top - boardPadding;
+
+    const
+      coordX = Math.round(x / cellSizePx),
+      coordY = Math.round(y / cellSizePx)
+
+    if (inRange(coordX, 0, columns + 1) && inRange(coordY, 0, rows + 1)) {
+      setStartPoint({x: coordX, y: coordY})
+    }
+  }
+
+  const handleMouseMove = e => {
+    const
+      x = e.clientX - bounds.left - boardPadding,
+      y = e.clientY - bounds.top - boardPadding;
+
+    const
+      coordX = x / cellSizePx,
+      coordY = y / cellSizePx
+    if (startPoint !== null) {
+      const possiblePoints = [
+        {x: startPoint.x - 1, y: startPoint.y},
+        {x: startPoint.x + 1, y: startPoint.y},
+        {x: startPoint.x, y: startPoint.y - 1},
+        {x: startPoint.x, y: startPoint.y + 1},
+      ].filter(p => inRange(p.x, 0, columns + 1) && inRange(p.y, 0, rows + 1))
+      
+      if (possiblePoints.length === 0) {
+        throw new Error("Assertion failed: no possible points")
+      }
+
+      const bestPoint = sortBy(
+        possiblePoints,
+        p => Math.sqrt((coordX - p.x) ** 2 + (coordY - p.y) ** 2)
+      )[0]
+
+      if (!bestPoint) {
+        throw new Error("Assertion failed: no bestPoint")
+      }
+
+      // TODO: Min distance threshold?
+      setEndPoint(bestPoint)
+    } else {
+      throw new Error("Assertion failed: handleMouseMove called when no startPoint")
+    }
+  }
+
+  const handleMouseUp = e => {
+    // TODO: Sometimes a click event registers at same time, but we don't want
+    // both! Probably replace click handler with something here.
+    if (startPoint && endPoint) {
+      if (endPoint.y === startPoint.y) {
+        const topCell = [endPoint.y - 1, Math.min(startPoint.x, endPoint.x)]
+        const bottomCell = [endPoint.y, Math.min(startPoint.x, endPoint.x)]
+
+        const newGrid = grid
+          .updateIn([...topCell, "borders", "bottom"], x => !x)
+          .updateIn([...bottomCell, "borders", "top"], x => !x)
+
+        setGrid(newGrid);
+      } else if (endPoint.x === startPoint.x) {
+        const leftCell = [Math.min(startPoint.y, endPoint.y), endPoint.x - 1]
+        const rightCell = [Math.min(startPoint.y, endPoint.y), endPoint.x]
+
+        const newGrid = grid
+          .updateIn([...leftCell, "borders", "right"], x => !x)
+          .updateIn([...rightCell, "borders", "left"], x => !x)
+
+        setGrid(newGrid);
+      }
+    }
+
+    setStartPoint(null);
+    setEndPoint(null);
+  }
+
   return (
-    <div className="board" style={{width: cellSizePx * columns + 3, height: cellSizePx * rows + 3}}>
+    <div
+      ref={el => {
+        if (el) {
+          const rect = el.getBoundingClientRect()
+          const newBounds = {left: rect.left, top: rect.top}
+          if (!isEqual(bounds, newBounds)) {
+            setBounds(newBounds)
+          }
+        }
+      }}
+      onMouseDown={handleMouseDown}
+      onMouseMove={startPoint ? handleMouseMove : null}
+      onMouseUp={handleMouseUp}
+      className="board"
+      style={{
+        width: cellSizePx * columns + 3,
+        height: cellSizePx * rows + 3,
+        padding: boardPadding,
+      }}
+    >
       {Array(columns).fill().flatMap((_, y) =>
         Array(rows).fill().map((_, x) =>
           <Cell
@@ -136,6 +255,24 @@ function Board({rows, columns}) {
           />
         )
       )}
+      {startPoint && endPoint &&
+        <>
+          <div
+            className="startPoint"
+            style={{
+              left: boardPadding + startPoint.x * cellSizePx,
+              top:  boardPadding + startPoint.y * cellSizePx
+            }}
+          ></div>
+          <div
+            className="startPoint"
+            style={{
+              left: boardPadding + endPoint.x * cellSizePx,
+              top:  boardPadding + endPoint.y * cellSizePx
+            }}
+          ></div>
+        </>
+      }
     </div>
   )
 }
@@ -146,7 +283,6 @@ function Board({rows, columns}) {
 // * clip path on parent div
 function Cell({x, y, selected, data, onClick}) {
   const {value, borders} = data;
-  const [bounds, setBounds] = useState(null);
 
   return <div
     className={classNames("cell", {
@@ -160,23 +296,13 @@ function Cell({x, y, selected, data, onClick}) {
     })}
     style={{
       width: cellSizePx,
-      height: cellSizePx
+      height: cellSizePx,
+      left: boardPadding + (cellSizePx * x),
+      top: boardPadding + (cellSizePx * y),
     }}
     data-x={x}
     data-y={y}
     onClick={onClick}
-
-    // TODO: Do something with this
-    //onMouseDown={e => console.log("drag start", e.clientX - bounds[0], e)}
-    ref={el => {
-      if (el) {
-        const rect = el.getBoundingClientRect()
-        const newBounds = [rect.left, rect.top]
-        if (!isEqual(bounds, newBounds)) {
-          setBounds(newBounds)
-        }
-      }
-    }}
   >
     <span className="value">{value}</span>
   </div>
