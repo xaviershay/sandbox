@@ -46,3 +46,8 @@
 .cell.selected {
   background-color: lightblue;
 }
+
+.cell.borderRight { border-right: solid 3px; }
+.cell.borderLeft { border-left: solid 3px; }
+.cell.borderTop { border-top: solid 3px; }
+.cell.borderBottom { border-bottom: solid 3px; }

@@ -1,3 +1,5 @@
+// @flow
+
 import React, {useState} from 'react';
 import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
@@ -6,6 +8,23 @@ import { List, Set } from 'immutable';
 
 import './App.css';
 
+// TODO:
+// * Inner corners for borders
+// * Auto-border
+// * Can add/remove border using drag interface
+// * serder state
+// * store state in URL
+// * separate out "givens" from guesses
+
+type CellType = {
+  value: ?number,
+  borders: {
+    "left": boolean,
+    "right": boolean,
+    "top": boolean,
+    "bottom": boolean,
+  }
+}
 
 function App() {
   return (
@@ -18,19 +37,34 @@ function App() {
 const cellSizePx = 50;
 
 function Board({rows, columns}) {
-  const newCell = () => { return {
+  const newCell : () => CellType = () => { return {
     value: null,
+    borders: {
+      "left": false,
+      "right": false,
+      "top": false,
+      "bottom": false,
+    },
   }}
   const initialGrid = List(Array(columns).fill().map((_, y) =>
                         List(Array(rows).fill().map((_, x) => newCell()))))
+    .setIn([0,0], {
+      value: 1,
+      borders: {
+        "left": true,
+        "right": false,
+        "top": true,
+        "bottom": true,
+      }
+    })
 
   const [selected, setSelected] = useState(null);
   const [grid, setGrid] = useState(initialGrid);
 
-  const decomposeValue =
+  const decomposeValue : (number) => Array<number> =
     n => [n].concat(n >= 10 ? decomposeValue(Math.floor(n / 10)) : [])
   const knownValues =
-    Set(grid.flatMap(rows => rows.flatMap(n => decomposeValue(n.value))).filter(Boolean))
+    Set(grid.flatMap(rows => rows.map(c => c.value).filter(Boolean).flatMap(decomposeValue)))
 
   const handleClick = (x, y) => () => {
     setSelected([y, x])
@@ -52,7 +86,7 @@ function Board({rows, columns}) {
     })
     useHotkeys("Control+" + i, () => { // eslint-disable-line
       if (selected !== null) {
-        setGrid(grid.updateIn([...selected, "value"], old => old * 10 + i))
+        setGrid(grid.updateIn([...selected, "value"], old => old ? old * 10 + i : i))
       }
     })
   }
@@ -77,6 +111,17 @@ function Board({rows, columns}) {
   useHotkeys("ArrowDown", () => moveSelected(0, 1))
   useHotkeys("Escape", () => setSelected(null))
 
+  const lookupCell = (x, y) => {
+    const row = grid.get(y)
+    if (!row) {
+      throw new Error("Assertion failed: row " + y + " does not exist in grid")
+    }
+    const cell = row.get(x);
+    if (!cell) {
+      throw new Error("Assertion failed: column " + x + " does not exist in grid")
+    }
+    return cell;
+  }
   return (
     <div className="board" style={{width: cellSizePx * columns + 3, height: cellSizePx * rows + 3}}>
       {Array(columns).fill().flatMap((_, y) =>
@@ -84,10 +129,10 @@ function Board({rows, columns}) {
           <Cell
             x={x}
             y={y}
-            value={grid.get(y).get(x).value}
+            data={lookupCell(x, y)}
             selected={isEqual([y, x], selected)}
             onClick={handleClick(x, y)}
-            key={[x, y]}
+            key={[x, y].join('-')}
           />
         )
       )}
@@ -99,7 +144,8 @@ function Board({rows, columns}) {
 // * Create a div with size border*2,  border-radius 50% (a circle)
 // * Absolute position to left/bottom, with negative margin if needed (will depend on corner)
 // * clip path on parent div
-function Cell({x, y, selected, value, onClick}) {
+function Cell({x, y, selected, data, onClick}) {
+  const {value, borders} = data;
   const [bounds, setBounds] = useState(null);
 
   return <div
@@ -107,6 +153,10 @@ function Cell({x, y, selected, value, onClick}) {
       firstInRow: x === 0,
       firstInColumn: y === 0,
       selected: selected,
+      borderLeft: borders["left"],
+      borderRight: borders["right"],
+      borderTop: borders["top"],
+      borderBottom: borders["bottom"],
     })}
     style={{
       width: cellSizePx,
@@ -117,11 +167,11 @@ function Cell({x, y, selected, value, onClick}) {
     onClick={onClick}
 
     // TODO: Do something with this
-    onMouseDown={e => console.log("drag start", e.clientX - bounds[0], e)}
+    //onMouseDown={e => console.log("drag start", e.clientX - bounds[0], e)}
     ref={el => {
       if (el) {
         const rect = el.getBoundingClientRect()
-        const newBounds = [rect.x, rect.y]
+        const newBounds = [rect.left, rect.top]
         if (!isEqual(bounds, newBounds)) {
           setBounds(newBounds)
         }
