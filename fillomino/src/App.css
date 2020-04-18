@@ -40,6 +40,10 @@
 }
 */
 
+.complete {
+  background-color: red;
+}
+
 .cell .value {
   display: block;
   text-align: center;

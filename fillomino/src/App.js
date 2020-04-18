@@ -19,7 +19,10 @@ import './App.css';
 // * separate out "givens" from guesses
 
 type CellType = {
+  x: number,
+  y: number,
   value: ?number,
+  complete?: boolean,
   borders: {
     "left": boolean,
     "right": boolean,
@@ -43,7 +46,9 @@ const cellSizePx = 50;
 const boardPadding = cellSizePx;
 
 function Board({rows, columns}) {
-  const newCell : () => CellType = () => { return {
+  const newCell : (number, number) => CellType = (x, y) => { return {
+    x: x,
+    y: y,
     value: null,
     borders: {
       "left": false,
@@ -53,8 +58,8 @@ function Board({rows, columns}) {
     },
   }}
   const initialGrid = List(Array(columns).fill().map((_, y) =>
-                        List(Array(rows).fill().map((_, x) => newCell()))))
-    .setIn([0,0], {
+                        List(Array(rows).fill().map((_, x) => newCell(x, y)))))
+    .updateIn([0,0], c => { return {...c,
       value: 1,
       borders: {
         "left": true,
@@ -62,8 +67,8 @@ function Board({rows, columns}) {
         "top": true,
         "bottom": true,
       }
-    })
-    .setIn([1,0], {
+    }})
+    .updateIn([1,0], c => { return {...c,
       value: 4,
       borders: {
         "left": false,
@@ -71,8 +76,8 @@ function Board({rows, columns}) {
         "top": true,
         "bottom": true,
       }
-    })
-    .setIn([1,1], {
+    }})
+    .updateIn([1,1], c => { return {...c,
       value: 3,
       borders: {
         "left": true,
@@ -80,8 +85,8 @@ function Board({rows, columns}) {
         "top": false,
         "bottom": false,
       }
-    })
-    .setIn([1,2], {
+    }})
+    .updateIn([1,2], c => { return {...c,
       value: 3,
       borders: {
         "left": true,
@@ -89,8 +94,8 @@ function Board({rows, columns}) {
         "top": true,
         "bottom": true,
       }
-    })
-    .setIn([0,2], {
+    }})
+    .updateIn([0,2], c => { return {...c,
       value: 5,
       borders: {
         "left": false,
@@ -98,8 +103,8 @@ function Board({rows, columns}) {
         "top": false,
         "bottom": true,
       }
-    })
-    .setIn([2,0], {
+    }})
+    .updateIn([2,0], c => { return { ...c,
       value: 5,
       borders: {
         "left": false,
@@ -107,8 +112,8 @@ function Board({rows, columns}) {
         "top": true,
         "bottom": false,
       }
-    })
-    .setIn([2,2], {
+    }})
+    .updateIn([2,2], c => { return {...c,
       value: 5,
       borders: {
         "left": false,
@@ -116,7 +121,7 @@ function Board({rows, columns}) {
         "top": true,
         "bottom": false,
       }
-    })
+    }})
 
   const [selected, setSelected] = useState(null);
   const [grid, setGrid] = useState(initialGrid);
@@ -128,7 +133,6 @@ function Board({rows, columns}) {
     Set(grid.flatMap(rows => rows.map(c => c.value).filter(Boolean).flatMap(decomposeValue)))
 
   const handleClick = (x, y) => () => {
-    console.log("click");
     setSelected([y, x])
   }
 
@@ -173,8 +177,39 @@ function Board({rows, columns}) {
   useHotkeys("ArrowDown", () => moveSelected(0, 1))
   useHotkeys("Escape", () => setSelected(null))
 
+  const getMatchingNeighbours = cellToMatch => {
+    const f = (cellToMatch, cell, seen) => {
+      seen = seen.add(cell)
+
+      if (cellToMatch.value == cell.value) {
+        const cs = Object.values(neighbours(cell.x, cell.y)).filter(Boolean).filter(c => !seen.has(c))
+
+        return cs.reduce([[cell], seen], (a, v) => {
+          const [matches, seen] = a
+          const [newMatches, newSeen] = f(cellToMatch, v, seen);
+
+          return [matches.concat(newMatches), newSeen];
+        })
+      } else {
+        return [[], seen];
+      }
+
+    }
+    const [matches, seen] = f(cellToMatch, cellToMatch, Set())
+    return matches
+  }
+
+  const grid2 = grid.map((cs, y) => cs.map((c, x) => {
+    if (c.value) {
+      if (getMatchingNeighbours(c).length == c.value) {
+        return {...c, complete: true};
+      }
+    }
+    return c;
+  }))
+
   const lookupCell = (x, y) => {
-    const row = grid.get(y)
+    const row = grid2.get(y)
     if (!row) {
       throw new Error("Assertion failed: row " + y + " does not exist in grid")
     }
@@ -184,6 +219,12 @@ function Board({rows, columns}) {
     }
     return cell;
   }
+  const neighbours = (x,y) => { return {
+    left: x > 0 ? lookupCell(x - 1, y) : null,
+    right: x < columns - 1 ? lookupCell(x + 1, y) : null,
+    top: y > 0 ? lookupCell(x, y - 1) : null,
+    bottom: y < rows - 1 ? lookupCell(x, y + 1) : null,
+  }}
 
   const [startPoint, setStartPoint] = useState(null)
   const [endPoint, setEndPoint] = useState(null)
@@ -272,13 +313,6 @@ function Board({rows, columns}) {
     setEndPoint(null);
   }
 
-  const neighbours = (x,y) => { return {
-    left: x > 0 ? lookupCell(x - 1, y) : null,
-    right: x < columns - 1 ? lookupCell(x + 1, y) : null,
-    top: y > 0 ? lookupCell(x, y - 1) : null,
-    bottom: y < rows - 1 ? lookupCell(x, y + 1) : null,
-  }}
-
   return (
     <div
       ref={el => {
@@ -340,7 +374,7 @@ function Board({rows, columns}) {
 // * Absolute position to left/bottom, with negative margin if needed (will depend on corner)
 // * clip path on parent div
 function Cell({x, y, selected, data, onClick, neighbours}) {
-  const {value, borders} = data;
+  const {value, borders, complete} = data;
 
   const corners = {
     bottomLeft: neighbours.left && neighbours.bottom && !borders.left && neighbours.left.borders.bottom && !borders.bottom && neighbours.bottom.borders.left,
@@ -358,6 +392,7 @@ function Cell({x, y, selected, data, onClick, neighbours}) {
       borderRight: borders["right"],
       borderTop: borders["top"],
       borderBottom: borders["bottom"],
+      complete: complete,
     })}
     style={{
       width: cellSizePx,
