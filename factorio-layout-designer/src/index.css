@@ -14,6 +14,78 @@ html, body, #application{
 	height: 100%;
 }
 
+.production-node {
+  background-color: rgb(199, 214, 219);
+  border-radius: 5px;
+  font-family: sans-serif;
+  color: white;
+  border: solid 2px black;
+  overflow: visible;
+  font-size: 11px;
+  padding-bottom: 0.25em;
+}
+
+.production-node .header {
+  background: rgba(0,0,0,0.3);
+  padding: 0.5em;
+  font-weight: bold;
+}
+
+.production-node .body {
+  font-size: 140%;
+  display: flex;
+  margin-top: 0.25em;
+  line-height: 20px;
+}
+
+.port.new {
+  text-align: center;
+}
+
+.production-node .inputs .port {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  padding-right: 0.75em;
+}
+
+.production-node .inputs .port img {
+  margin-right: 0.5em;
+}
+
+.production-node .outputs .port {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  padding-left: 0.75em;
+}
+
+.production-node .outputs .port img {
+  margin-left: 0.5em;
+}
+
+.production-node .port {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+  padding: 0.25em;
+  background: rgba(0,0,0,1.0);
+}
+
+.production-node .assembler {
+  color: black;
+  margin-top: 0.25em;
+  flex-grow: 1;
+  padding-top: 0.25em;
+  padding-left: 1em;
+  padding-right: 1em;
+  padding-bottom: 1em;
+}
+.production-node .assembler img {
+  margin-right: 0.25em;
+}
+
+.production-node img {
+  vertical-align: middle;
+}
+
 .custom-node{
 	border: solid 2px gray;
 	border-radius: 5px;
