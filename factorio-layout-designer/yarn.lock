@@ -1280,7 +1280,7 @@
   dependencies:
     "@projectstorm/geometry" "^6.0.2"
 
-"@projectstorm/react-diagrams-core@^6.0.1-beta.7", "@projectstorm/react-diagrams-core@^6.0.2":
+"@projectstorm/react-diagrams-core@^6.0.2":
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/@projectstorm/react-diagrams-core/-/react-diagrams-core-6.0.2.tgz#d18816e593791b7cc12f7dc142716faeb6bd0f89"
   integrity sha512-oT2UYqKmeahITwHecPOEca4mtDO2XDUWYfbbzLG1opwNSTR2ui+wuWMjJMOuNxjwBsvxXbPY9wy4G5xMttIrCA==
@@ -1288,14 +1288,14 @@
     "@projectstorm/geometry" "^6.0.2"
     "@projectstorm/react-canvas-core" "^6.0.2"
 
-"@projectstorm/react-diagrams-defaults@^6.0.1-beta.7", "@projectstorm/react-diagrams-defaults@^6.0.2":
+"@projectstorm/react-diagrams-defaults@^6.0.2":
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/@projectstorm/react-diagrams-defaults/-/react-diagrams-defaults-6.0.2.tgz#7fbd599bc437153b64844b56feb3a02aeea389ad"
   integrity sha512-cAc2qqv92JD3mDm9H0Yxsy2xa8VPmSyjMwjQdX0WCrrWu9lB5tKCgpBn+zmjKePEIKFmd3aqqeIYjYo1OQlIag==
   dependencies:
     "@projectstorm/react-diagrams-core" "^6.0.2"
 
-"@projectstorm/react-diagrams-routing@^6.0.1-beta.7":
+"@projectstorm/react-diagrams-routing@^6.0.2":
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/@projectstorm/react-diagrams-routing/-/react-diagrams-routing-6.0.2.tgz#b6469c3d849904395bde84fe602487405403035e"
   integrity sha512-xtmAqxmYwk3kFgFnkTBwVRh0QuOfyvZqUhvfOGgwbhoRRsJk2PlyFi9O16y0BOUOoHJJYxenoSGGgL8WGgjpKQ==
@@ -1305,13 +1305,13 @@
     "@projectstorm/react-diagrams-defaults" "^6.0.2"
 
 "@projectstorm/react-diagrams@^6.0.1-beta.7":
-  version "6.0.1-beta.7"
-  resolved "https://registry.yarnpkg.com/@projectstorm/react-diagrams/-/react-diagrams-6.0.1-beta.7.tgz#b6907415b1a0467dd25d58da6bf12a0f2ccc915d"
-  integrity sha512-aEQuRyNtzrlc6TNVji5Zme9fJkOcnCdiskPFXF14c0b9MJO4cz8yUrGZh0/MjsSH8pQl1sB71mnGFLQ20aAHmQ==
+  version "6.0.2"
+  resolved "https://registry.yarnpkg.com/@projectstorm/react-diagrams/-/react-diagrams-6.0.2.tgz#1223ae6f8c14dafa1041392ffff0b83df685eaaf"
+  integrity sha512-TUD2CsZOlBOzangnDtjWsF+3elVvnWIjXJrTa7PycFIXQlG/HwLRbds5Amoh97XCcvvCY3x/EJrJjQSnf7/bIA==
   dependencies:
-    "@projectstorm/react-diagrams-core" "^6.0.1-beta.7"
-    "@projectstorm/react-diagrams-defaults" "^6.0.1-beta.7"
-    "@projectstorm/react-diagrams-routing" "^6.0.1-beta.7"
+    "@projectstorm/react-diagrams-core" "^6.0.2"
+    "@projectstorm/react-diagrams-defaults" "^6.0.2"
+    "@projectstorm/react-diagrams-routing" "^6.0.2"
 
 "@sheerun/mutationobserver-shim@^0.3.2":
   version "0.3.3"

@@ -3,59 +3,44 @@ import './App.css';
 
 //import "@projectstorm/react-diagrams/dist/style.min.css"
 
-import createEngine, { 
-    DefaultLinkModel, 
-    DefaultNodeModel,
-    DiagramModel 
-} from '@projectstorm/react-diagrams';
+import * as SRD from "storm-react-diagrams"
+import "storm-react-diagrams/dist/style.min.css"
 
-import {
-    CanvasWidget
-} from '@projectstorm/react-canvas-core';
+// 1) setup the diagram engine
+var engine = new SRD.DiagramEngine();
+engine.installDefaultFactories();
 
-// create an instance of the engine with all the defaults
-const engine = createEngine();
+// 2) setup the diagram model
+var model = new SRD.DiagramModel();
 
-// node 1
-const node1 = new DefaultNodeModel({
-    name: 'Node 1',
-    color: 'rgb(0,192,255)',
-});
+// 3) create a default node
+var node1 = new SRD.DefaultNodeModel("Node 1", "rgb(0,192,255)");
+let port1 = node1.addOutPort("Out");
 node1.setPosition(100, 100);
-let port1 = node1.addOutPort('Copper Cable');
-let port3 = node1.addInPort('Copper Plate');
 
-// node 2
-const node2 = new DefaultNodeModel({
-    name: 'Node 2',
-    color: 'rgb(0,192,255)',
-});
+// 4) create another default node
+var node2 = new SRD.DefaultNodeModel("Node 2", "rgb(192,255,0)");
+let port2 = node2.addInPort("In");
+node2.setPosition(400, 100);
 
-node2.setPosition(100, 10);
-let port2 = node2.addInPort('Copper Cable');
-node2.addInPort('Iron Plate');
-node2.addOutPort('Green Circuit');
+// 5) link the ports
+let link1 = port1.link(port2);
 
-// link them and add a label to the link
-const link = port1.link<DefaultLinkModel>(port2);
-//link.addLabel('Hello World!');
+// 6) add the models to the root graph
+model.addAll(node1, node2, link1);
 
-const model = new DiagramModel();
-model.addAll(node1, node2, link);
-engine.setModel(model);
+// 7) load model into engine
+engine.setDiagramModel(model);
 
-const styles = { height: "100vh", width: "90%", backgroundColor: "aliceblue"};
+function SimpleDiagramWidget(props) {
+  return <SRD.DiagramWidget diagramEngine={props.engine} />;
+}
 
 function App() {
   return (
     <div className="app-wrapper">
-      <div></div>
-      <div style={styles}>
-        <CanvasWidget className="canvas" engine={engine} />
-      </div>
-
+      <SimpleDiagramWidget engine={engine} />
     </div>
- 
   );
 }
 
