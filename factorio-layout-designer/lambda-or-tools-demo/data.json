@@ -1,0 +1,21 @@
+{
+  "variables": {
+    "x": [ 0, 10 ],
+    "y": [ 0, 5 ],
+    "z": [ 4, 4 ]
+  },
+  "constraints": [
+    {
+      "range": [ 0, 10 ],
+      "coefficients": { "x": 2, "y": 5 }
+    },
+    {
+      "range": [ 0, 20 ],
+      "coefficients": { "x": 10, "y": 3 }
+    }
+  ],
+  "objective": {
+    "type": "max",
+    "coefficients": { "x": 1, "y": 2 }
+  }
+}
