@@ -37,9 +37,13 @@ html, body, #application{
   margin-top: 0.25em;
   line-height: 20px;
 }
+.port {
+  min-width: 37px;
+}
 
 .port.new {
   text-align: center;
+  cursor: pointer;
 }
 
 .production-node .inputs .port {

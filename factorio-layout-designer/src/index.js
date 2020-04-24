@@ -30,19 +30,19 @@ const model = new DiagramModel();
 // now create two nodes of each type, and connect them
 
 //const node1 = new JSCustomNodeModel({ color: 'rgb(192,255,0)' });
-const node1 = new DefaultNodeModel({ name: 'hi', color: 'rgb(192,255,0)' });
-node1.addPort(new DefaultPortModel({in: false, name: 'out'}))
-node1.addPort(new DefaultPortModel({in: false, name: 'out 2'}))
-node1.setPosition(50, 50);
-
-const node2 = new DefaultNodeModel({ color: 'rgb(0,192,255)' });
-node2.addPort(new DefaultPortModel({in: true, name: 'in'}))
-node2.setPosition(200, 50);
-
-const link1 = new DefaultLinkModel();
-link1.setSourcePort(node1.getPort('out'));
-link1.setTargetPort(node2.getPort('in'));
-link1.addLabel("13i/s");
+//const node1 = new DefaultNodeModel({ name: 'hi', color: 'rgb(192,255,0)' });
+//node1.addPort(new DefaultPortModel({in: false, name: 'out'}))
+//node1.addPort(new DefaultPortModel({in: false, name: 'out 2'}))
+//node1.setPosition(50, 50);
+//
+//const node2 = new DefaultNodeModel({ color: 'rgb(0,192,255)' });
+//node2.addPort(new DefaultPortModel({in: true, name: 'in'}))
+//node2.setPosition(200, 50);
+//
+//const link1 = new DefaultLinkModel();
+//link1.setSourcePort(node1.getPort('out'));
+//link1.setTargetPort(node2.getPort('in'));
+//link1.addLabel("13i/s");
 
 const node3 = new ProductionNode({
   name: 'Copper Cable',
@@ -147,13 +147,39 @@ link4.setSourcePort(node6.getPort('out-1'));
 link4.setTargetPort(node4.getPort('in-2'));
 link4.addLabel("3.33/s");
 
-model.addAll(node3, node4, link2, node5, node6, link3, link4);
+let models = model.addAll(node3, node4, link2, node5, node6, link3, link4);
+
+models.forEach(item => {
+  item.registerListener({
+    eventDidFire: e => {
+      switch (e.function) {
+        case 'nodeStructureChanged':
+          engine.repaintCanvas()
+          break;
+      }
+    }
+  })
+})
 
 //####################################################
 
 // install the model into the engine
 engine.setModel(model);
 
+const App = () => {
+  const handleSerialize = () => {
+    console.log(engine.getModel().serialize())
+  }
+  return (
+    <div style={{width: "100%", height: "100%"}}>
+      <div>
+        <button onClick={handleSerialize}>Serialize</button>
+      </div>
+      <CanvasWidget className="diagram-container" engine={engine} />
+    </div>
+  )
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-	ReactDOM.render(<CanvasWidget className="diagram-container" engine={engine} /> , document.querySelector('#application'));
+	ReactDOM.render(<App /> , document.querySelector('#application'));
 });
