@@ -31,36 +31,37 @@ html, body, #application{
   margin-top: 0.25em;
   line-height: 20px;
 }
-.port {
+.port-container {
+  display: flex;
   min-width: 37px;
 }
 
-.port.new {
-  text-align: center;
+.port-container.new {
+  justify-content: center;
   cursor: pointer;
 }
 
-.production-node .inputs .port {
+.production-node .inputs .port-container {
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
   padding-right: 0.75em;
 }
 
-.production-node .inputs .port img {
+.production-node .inputs .port-container img {
   margin-right: 0.5em;
 }
 
-.production-node .outputs .port {
+.production-node .outputs .port-container {
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
   padding-left: 0.75em;
 }
 
-.production-node .outputs .port img {
+.production-node .outputs .port-container img {
   margin-left: 0.5em;
 }
 
-.production-node .port {
+.production-node .port-container {
   margin-top: 0.25em;
   margin-bottom: 0.25em;
   padding: 0.25em;

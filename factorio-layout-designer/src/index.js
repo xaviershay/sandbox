@@ -18,6 +18,7 @@ import { TSCustomNodeModel } from './custom-node-ts/TSCustomNodeModel';
 
 // create an instance of the engine
 const engine = createEngine()
+engine.maxNumberPointsPerLink = 0
 
 // register the two engines
 /*
@@ -384,14 +385,15 @@ const App = () => {
   const handleSolve = async () => {
     const model = engine.getModel()
     const nodes = model.getNodes()
-    const links = model.getLinks()
+    const links = model.getLinks().filter(link => link.sourcePort && link.targetPort)
 
     let solver = new ProductionSolver()
     nodes.forEach((node) => {
       solver.addNode(node)
 
-      if (node.options.targetRate) {
-        solver.addTarget(node4, 10)
+      const targetRate = node.options.targetRate
+      if (targetRate > 0) {
+        solver.addTarget(node, targetRate)
       }
 
       Object.values(node.ports).forEach((port) => {
@@ -413,6 +415,7 @@ const App = () => {
     const solverEndpoint =
       'https://sa6mifk9pb.execute-api.us-east-1.amazonaws.com/solveLP'
 
+    console.log(JSON.parse(solver.toJson()))
     try {
       const solution = await fetch(solverEndpoint, {
         method: 'post',
@@ -464,6 +467,7 @@ const App = () => {
           >
             <div className="header">Blank</div>
           </div>
+    {/*
           <div className="tray-item production-node" draggable={true}>
             <div className="header">
               Green Circuit
@@ -486,13 +490,21 @@ const App = () => {
               />
             </div>
           </div>
+          */}
         </div>
         <div
           className="canvas"
           onDrop={(event) => {
-            var data = JSON.parse(
-              event.dataTransfer.getData('storm-diagram-node')
-            )
+            console.log(event)
+            let data = null
+            try {
+              data = JSON.parse(
+                event.dataTransfer.getData('storm-diagram-node')
+              )
+            } catch (e) {
+              // Not an event we know how to handle
+              return null;
+            }
             console.log(data)
             const node = new ProductionNode({
               name: data.name,
@@ -515,7 +527,8 @@ const App = () => {
             event.preventDefault()
           }}
         >
-          <CanvasWidget className="diagram-container" engine={engine} />
+          <CanvasWidget className="diagram-container"
+    engine={engine} />
         </div>
       </div>
     </div>

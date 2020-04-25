@@ -4,24 +4,37 @@ import { AbstractReactFactory } from '@projectstorm/react-canvas-core'
 import { PortWidget } from '@projectstorm/react-diagrams'
 
 function imageFor(x) {
-  if (x == null) return null
+  if (x == null) return "/img/transparent.png";
   return `/img/icons/${x}.png`
 }
 
 export const ProductionNodeWidget = ({ engine, node }) => {
   const [editable, setEditable] = useState(null)
 
+  let defaultPortValues = {}
+  Object.values(node.ports).forEach(port => {
+    defaultPortValues[port.options.label] = port.options.count
+  })
   const [editableValues, setEditableValues] = useState({
     name: node.options.name,
     duration: node.options.duration,
     craftingSpeed: node.options.craftingSpeed,
     productivityBonus: node.options.productivityBonus,
     targetRate: node.options.targetRate || '',
+    ports: defaultPortValues,
   })
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
     setEditableValues({ ...editableValues, [name]: value })
+  }
+
+  const handlePortInputChange = (e) => {
+    const { name, value } = e.target
+    setEditableValues({
+      ...editableValues,
+      ports: {...editableValues.ports, [name]: value}
+    })
   }
 
   const inputPorts = Object.values(node.ports).filter((p) => p.options.in)
@@ -37,6 +50,10 @@ export const ProductionNodeWidget = ({ engine, node }) => {
         count: 1,
       })
     )
+    setEditableValues({
+      ...editableValues,
+      ports: {...editableValues.ports, ['in-' + portIndex]: 1}
+    })
     engine.repaintCanvas()
   }
 
@@ -50,6 +67,10 @@ export const ProductionNodeWidget = ({ engine, node }) => {
         count: 1,
       })
     )
+    setEditableValues({
+      ...editableValues,
+      ports: {...editableValues.ports, ['out-' + portIndex]: 1}
+    })
     engine.repaintCanvas()
   }
 
@@ -58,11 +79,14 @@ export const ProductionNodeWidget = ({ engine, node }) => {
   }, [node, editable])
 
   const handleSubmit = useCallback(() => {
-    node.options.name = editableValues.name
-    node.options.duration = editableValues.duration
-    node.options.craftingSpeed = editableValues.craftingSpeed
-    node.options.productivityBonus = editableValues.productivityBonus
-    node.options.targetRate = editableValues.targetRate
+    node.options.name = parseFloat(editableValues.name)
+    node.options.duration = parseFloat(editableValues.duration)
+    node.options.craftingSpeed = parseFloat(editableValues.craftingSpeed)
+    node.options.productivityBonus = parseFloat(editableValues.productivityBonus)
+    node.options.targetRate = parseFloat(editableValues.targetRate)
+    Object.entries(editableValues.ports).forEach(([portName, value]) => {
+      node.ports[portName].options.count = parseFloat(value)
+    })
     setEditable(null)
   }, [node, editableValues])
 
@@ -106,23 +130,53 @@ export const ProductionNodeWidget = ({ engine, node }) => {
     }
   }
 
+  const editablePortInput = port => {
+    const name = port.options.label
+
+    if (editable) {
+      return (
+        <input
+          name={name}
+          value={editableValues.ports[name]}
+          onFocus={(e) => e.currentTarget.select()}
+          autoFocus={editable === ['port', name].join('-')}
+          onChange={handlePortInputChange}
+          onKeyDown={(e) => {
+            if (e.keyCode === 13) {
+              handleSubmit()
+            }
+          }}
+        />
+      )
+    } else {
+      return (
+        <span onDoubleClick={() => setEditable(['port', name].join('-'))}>
+          {editableValues.ports[name]}
+        </span>
+      )
+    }
+  }
+
   return (
     <div className="production-node">
       <div className="header">{editableInput({ name: 'name' })}</div>
       <div className="body">
         <div className="inputs">
-          {inputPorts.map((p) => (
-            <PortWidget key={p.options.id} engine={engine} port={p}>
-              <img
-                src={imageFor(p.options.icon)}
-                width="20"
-                height="20"
-                alt={p.options.icon}
-              />
-              <span onClick={() => console.log('hi')}>{p.options.count}</span>
-            </PortWidget>
-          ))}
-          <div className="port new" onClick={handleAddInputPort}>
+          {inputPorts.map((p) =>
+            <div key={p.options.id} className='port-container'>
+              <PortWidget key={p.options.id} engine={engine} port={p}>
+                <img
+                  draggable={false}
+                  src={imageFor(p.options.icon)}
+                  width="20"
+                  height="20"
+                  alt={p.options.icon}
+                />
+              </PortWidget>
+              {editablePortInput(p)}
+            </div>
+          )}
+          <div className="port-container new" onClick={handleAddInputPort}>
             +
           </div>
         </div>
@@ -171,18 +225,21 @@ export const ProductionNodeWidget = ({ engine, node }) => {
           })}
         </div>
         <div className="outputs">
-          {outputPorts.map((p) => (
+          {outputPorts.map((p) =>
+            <div className='port-container' key={p.options.id}>
+            {editablePortInput(p)}
             <PortWidget key={p.options.id} engine={engine} port={p}>
-              <span onClick={() => console.log('hi')}>{p.options.count}</span>
               <img
+                draggable={false}
                 src={imageFor(p.options.icon)}
                 width="20"
                 height="20"
                 alt={p.options.icon}
               />
             </PortWidget>
-          ))}
-          <div className="port new" onClick={handleAddOutputPort}>
+            </div>
+          )}
+          <div className="port-container new" onClick={handleAddOutputPort}>
             +
           </div>
         </div>
