@@ -8,12 +8,6 @@ html, body, #application{
 	overflow: hidden;
 }
 
-.diagram-container{
-	background: #333333;
-	width: 100%;
-	height: 100%;
-}
-
 .production-node {
   background-color: rgb(199, 214, 219);
   border-radius: 5px;
@@ -122,4 +116,52 @@ html, body, #application{
 
 .circle-port:hover{
 	background: mediumpurple;
+}
+
+.body {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas {
+
+  flex-grow: 1;
+}
+
+.tray {
+	background: #222222;
+  padding: 1em;
+}
+
+.diagram-container{
+	background: #333333;
+	width: 100%;
+	height: 100%;
+}
+
+
+.tray-item {
+  cursor: pointer;
+}
+
+.tray-item.production-node {
+  padding: 0
+}
+
+.tray-item .header {
+  display: flex;
+  align-items: center;
+  min-height: 20px;
+}
+
+.tray input {
+  margin-bottom: 0.5em;
+  padding: 0.25em;
+  border: none;
+  background-color: #333333;
+  color: white;
+}
+.tray-item img {
+  margin-left: 1em;
 }

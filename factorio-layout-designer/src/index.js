@@ -196,6 +196,8 @@ link3.addLabel("5/s");
 
 let models = model.addAll(node3, node5, link3);
 */
+
+// Ported from https://bitbucket.org/PowellNGL/foreman/pull-requests/17/do-not-merge-progress-modal-new-solver/diff#chg-Foreman/Models/Solver/GoogleSolver.cs
 class ProductionSolver {
   constructor() {
     this.nodes = []
@@ -422,9 +424,42 @@ const App = () => {
         <button onClick={handleSerialize}>Serialize</button>
         <button onClick={handleSolve}>Solve</button>
       </div>
-      <CanvasWidget className="diagram-container" engine={engine} />
+      <div className='body'>
+        <div className='tray'>
+          <div className='search'>
+            <input placeholder="Search" />
+          </div>
+          <div className='tray-item production-node' draggable={true}>
+            <div className='header'>
+              Blank
+            </div>
+          </div>
+          <div className='tray-item production-node' draggable={true}>
+            <div className='header'>
+              Green Circuit
+              <img src={imageFor('green-circuit')} alt="green-circuit" width="20" height="20" />
+            </div>
+          </div>
+          <div className='tray-item production-node' draggable={true}>
+            <div className='header'>
+              Green Circuit
+              <img src={imageFor('green-circuit')} alt="green-circuit" width="20" height="20" />
+            </div>
+          </div>
+        </div>
+        <div className='canvas'>
+          <CanvasWidget className="diagram-container" engine={engine} />
+        </div>
+      </div>
     </div>
   )
+}
+
+// TODO: DRY up with ProductionNode
+function imageFor(x) {
+  if (x == null)
+    return null
+  return `/img/icons/${x}.png`
 }
 
 document.addEventListener('DOMContentLoaded', () => {
