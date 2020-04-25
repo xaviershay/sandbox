@@ -351,7 +351,7 @@ class ProductionSolver {
 }
 
 const nodeListener = (e) => {
-  console.log(e)
+  //console.log(e)
   switch (e.function) {
     case 'nodeStructureChanged':
       console.log('repainting')
