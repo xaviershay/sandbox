@@ -49,7 +49,7 @@ export class ProductionNodeWidget extends React.Component {
           <div className="inputs">
             {inputPorts.map(p =>
                 <PortWidget key={p.options.id} engine={this.props.engine} port={p}>
-                <img src={imageFor(p.options.icon)} width="20" height="20" />
+                <img src={imageFor(p.options.icon)} width="20" height="20" alt={p.options.icon} />
                 <span onClick={() => console.log("hi")}>{p.options.count}</span>
                 </PortWidget>
             )}
@@ -59,20 +59,20 @@ export class ProductionNodeWidget extends React.Component {
           </div>
           <div className="assembler">
           {/*Time by Gagana from the Noun Project*/}
-            <img src="/img/noun_Time_2027684.png" width="20" height="20" />
+            <img src="/img/noun_Time_2027684.png" width="20" height="20" alt="Recipe Duration" />
             {node.options.duration}s
             <br />
             {/* Time by Alice Design from the Noun Project */}
-            <img src="/img/noun_Time_2630876.png" width="20" height="20" />
+            <img src="/img/noun_Time_2630876.png" width="20" height="20" alt="Crafting Speed" />
             {node.options.craftingSpeed}
             <br />
               {/*Gear by Vincencio from the Noun Project*/}
-            <img src="/img/noun_Gear_3267680.png" width="20" height="20" />
+            <img src="/img/noun_Gear_3267680.png" width="20" height="20" alt="Productivity Bonus" />
             {node.options.productivityBonus > 0 ? `+${node.options.productivityBonus * 100}%` : "-"}
             {node.options.targetRate && <>
               {/*Target by Edward Boatman from the Noun Project*/}
               <br />
-              <img src="/img/noun_Target_308.png" width="20" height="20" />
+              <img src="/img/noun_Target_308.png" width="20" height="20" alt="Target Rate" />
               {node.options.targetRate}/s
             </>}
 
@@ -81,7 +81,7 @@ export class ProductionNodeWidget extends React.Component {
             {outputPorts.map(p =>
                 <PortWidget key={p.options.id} engine={this.props.engine} port={p}>
                 <span onClick={() => console.log("hi")}>{p.options.count}</span>
-                <img src={imageFor(p.options.icon)} width="20" height="20" />
+                <img src={imageFor(p.options.icon)} width="20" height="20" alt={p.options.icon} />
                 </PortWidget>
             )}
             <div className="port new" onClick={handleAddOutputPort}>

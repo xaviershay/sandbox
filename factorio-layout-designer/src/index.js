@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import './index.css';
-import createEngine, { DefaultPortModel, DefaultLinkModel, DiagramModel, DefaultNodeModel } from '@projectstorm/react-diagrams';
+import createEngine, { DefaultPortModel, DefaultLinkModel, DiagramModel} from '@projectstorm/react-diagrams';
 import { CanvasWidget } from '@projectstorm/react-canvas-core';
 import {ProductionNode, ProductionNodeFactory} from './ProductionNode'
 /*
@@ -305,7 +305,6 @@ class ProductionSolver {
         coefficients: this.objective
       }
     }
-    console.log(doc)
     return JSON.stringify(doc)
   }
 
@@ -315,9 +314,9 @@ class ProductionSolver {
 
   linkVar(link, type) {
     let name = 'link'
-    if (type == "INPUT") {
+    if (type === "INPUT") {
       name = [link.targetPort.parent.options.name, link.targetPort.options.icon].join('-')
-    } else if (type == 'OUTPUT') {
+    } else if (type === 'OUTPUT') {
       name = [link.sourcePort.parent.options.name, link.sourcePort.options.icon].join('-')
     }
     return this.variableFor(link.options.id, type, name)
@@ -345,6 +344,8 @@ models.forEach(item => {
         case 'nodeStructureChanged':
           engine.repaintCanvas()
           break;
+        default:
+          // it's fine
       }
     }
   })
@@ -373,7 +374,6 @@ const App = () => {
         solver.addTarget(node4, 10)
       }
 
-      console.log(node)
       Object.values(node.ports).forEach(port => {
         const links = Object.values(port.links)
         if (links.length > 0) {
@@ -385,7 +385,6 @@ const App = () => {
         }
       })
     })
-    console.log(solver.toJson())
     const solverEndpoint =
       "https://sa6mifk9pb.execute-api.us-east-1.amazonaws.com/solveLP"
 
