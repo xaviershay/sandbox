@@ -44,6 +44,7 @@ const model = new DiagramModel();
 //link1.setTargetPort(node2.getPort('in'));
 //link1.addLabel("13i/s");
 
+/*
 const node3 = new ProductionNode({
   name: 'Copper Cable',
   duration: 0.5,
@@ -83,8 +84,8 @@ node5.addPort(
     count: 1,
   })
 );
+*/
 
-/*
 const node3 = new ProductionNode({
   name: 'Copper Cable',
   duration: 0.5,
@@ -189,13 +190,14 @@ link4.setTargetPort(node4.getPort('in-2'));
 link4.addLabel("3.33/s");
 
 let models = model.addAll(node3, node4, link2, node5, node6, link3, link4);
-*/
+/*
 const link3 = new DefaultLinkModel();
 link3.setSourcePort(node5.getPort('out-1'));
 link3.setTargetPort(node3.getPort('in-1'));
 link3.addLabel("5/s");
 
 let models = model.addAll(node3, node5, link3);
+*/
 class ProductionSolver {
   constructor() {
     this.nodes = []
@@ -216,7 +218,7 @@ class ProductionSolver {
   // multiple are supported, on any node. If there is a conflict, a 'best
   // effort' solution will be returned, where some nodes actual rates will not
   // match the desired asked for here.
-  // 
+  //
   // TODO: Best effort not support yet, need to add error variables
   addTarget(node, desiredRate) {
     const nodeVar = this.nodeVar(node, 'ACTUAL')
@@ -260,7 +262,7 @@ class ProductionSolver {
 
   // Constrain input to a node for a particular item so that the node does not
   // consume more than is being produced by the supplier.
-  // 
+  //
   // Consuming less than is being produced is fine. This represents a backup.
   addInputLinks(node, links, rate) {
     links.forEach(link => {
@@ -314,7 +316,13 @@ class ProductionSolver {
   }
 
   linkVar(link, type) {
-    return this.variableFor(link.options.id, type, 'link')
+    let name = 'link'
+    if (type == "INPUT") {
+      name = [link.targetPort.parent.options.name, link.targetPort.options.icon].join('-')
+    } else if (type == 'OUTPUT') {
+      name = [link.sourcePort.parent.options.name, link.sourcePort.options.icon].join('-')
+    }
+    return this.variableFor(link.options.id, type, name)
   }
 
   variableFor(objectId, type, name) {
@@ -376,7 +384,8 @@ const App = () => {
         }
       })
     })
-    solver.addTarget(node3, 10)
+    //solver.addTarget(node3, 10)
+    solver.addTarget(node4, 10)
     console.log(solver.toJson())
     //links.forEach(link => {
     //  if (!link.sourcePort && !link.targetPort) {

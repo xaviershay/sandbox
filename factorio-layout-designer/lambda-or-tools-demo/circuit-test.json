@@ -1,9 +1,22 @@
 {
+  "expected": {
+    "Copper Cable,ACTUAL,1": 15.0,
+    "Copper Cable-copper-cable,OUTPUT,4": 30.0,
+    "Copper Cable-copper-plate,INPUT,2": 15.0,
+    "Furnace,ACTUAL,10": 10.0,
+    "Furnace,ACTUAL,9": 15.0,
+    "Furnace-copper-plate,OUTPUT,3": 15.0,
+    "Furnace-iron-plate,OUTPUT,8": 10.0,
+    "Green Circuit,ACTUAL,5": 10.0,
+    "Green Circuit-copper-cable,INPUT,6": 30.0,
+    "Green Circuit-iron-plate,INPUT,7": 10.0
+  },
+  "problem": {
     "constraints": [
         {
             "coefficients": {
                 "Copper Cable,ACTUAL,1": 1,
-                "link,INPUT,2": -1
+                "Copper Cable-copper-plate,INPUT,2": -1
             },
             "range": [
                 0,
@@ -12,8 +25,8 @@
         },
         {
             "coefficients": {
-                "link,INPUT,2": -1,
-                "link,OUTPUT,3": 1
+                "Copper Cable-copper-plate,INPUT,2": -1,
+                "Furnace-copper-plate,OUTPUT,3": 1
             },
             "range": [
                 0,
@@ -23,7 +36,7 @@
         {
             "coefficients": {
                 "Copper Cable,ACTUAL,1": 2,
-                "link,OUTPUT,4": -1
+                "Copper Cable-copper-cable,OUTPUT,4": -1
             },
             "range": [
                 0,
@@ -33,7 +46,7 @@
         {
             "coefficients": {
                 "Green Circuit,ACTUAL,5": 3,
-                "link,INPUT,6": -1
+                "Green Circuit-copper-cable,INPUT,6": -1
             },
             "range": [
                 0,
@@ -42,8 +55,8 @@
         },
         {
             "coefficients": {
-                "link,INPUT,6": -1,
-                "link,OUTPUT,4": 1
+                "Copper Cable-copper-cable,OUTPUT,4": 1,
+                "Green Circuit-copper-cable,INPUT,6": -1
             },
             "range": [
                 0,
@@ -53,7 +66,7 @@
         {
             "coefficients": {
                 "Green Circuit,ACTUAL,5": 1,
-                "link,INPUT,7": -1
+                "Green Circuit-iron-plate,INPUT,7": -1
             },
             "range": [
                 0,
@@ -62,8 +75,8 @@
         },
         {
             "coefficients": {
-                "link,INPUT,7": -1,
-                "link,OUTPUT,8": 1
+                "Furnace-iron-plate,OUTPUT,8": 1,
+                "Green Circuit-iron-plate,INPUT,7": -1
             },
             "range": [
                 0,
@@ -72,17 +85,8 @@
         },
         {
             "coefficients": {
-                "Green Circuit,ACTUAL,5": 1
-            },
-            "range": [
-                0,
-                0
-            ]
-        },
-        {
-            "coefficients": {
                 "Furnace,ACTUAL,9": 1,
-                "link,OUTPUT,3": -1
+                "Furnace-copper-plate,OUTPUT,3": -1
             },
             "range": [
                 0,
@@ -92,7 +96,7 @@
         {
             "coefficients": {
                 "Furnace,ACTUAL,10": 1,
-                "link,OUTPUT,8": -1
+                "Furnace-iron-plate,OUTPUT,8": -1
             },
             "range": [
                 0,
@@ -123,6 +127,14 @@
             0,
             null
         ],
+        "Copper Cable-copper-cable,OUTPUT,4": [
+            0,
+            null
+        ],
+        "Copper Cable-copper-plate,INPUT,2": [
+            0,
+            null
+        ],
         "Furnace,ACTUAL,10": [
             0,
             null
@@ -131,33 +143,26 @@
             0,
             null
         ],
+        "Furnace-copper-plate,OUTPUT,3": [
+            0,
+            null
+        ],
+        "Furnace-iron-plate,OUTPUT,8": [
+            0,
+            null
+        ],
         "Green Circuit,ACTUAL,5": [
             0,
             null
         ],
-        "link,INPUT,2": [
+        "Green Circuit-copper-cable,INPUT,6": [
             0,
             null
         ],
-        "link,INPUT,6": [
-            0,
-            null
-        ],
-        "link,INPUT,7": [
-            0,
-            null
-        ],
-        "link,OUTPUT,3": [
-            0,
-            null
-        ],
-        "link,OUTPUT,4": [
-            0,
-            null
-        ],
-        "link,OUTPUT,8": [
+        "Green Circuit-iron-plate,INPUT,7": [
             0,
             null
         ]
     }
+  }
 }

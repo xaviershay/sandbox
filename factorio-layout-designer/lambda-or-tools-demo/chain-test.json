@@ -1,0 +1,122 @@
+{
+  "expected": {
+    "Copper Cable,ACTUAL,1": 3.0,
+    "Furnace,ACTUAL,4": 3.0,
+    "link,INPUT,2": 3.0,
+    "link,OUTPUT,3": 3.0,
+    "cable-cable,OUTPUT,4": 6.0,
+    "circuit-cable,INPUT,5": 6.0,
+    "circuit,ACTUAL,6": 2.0
+  },
+  "problem": {
+    "constraints": [
+        {
+            "coefficients": {
+                "Copper Cable,ACTUAL,1": 1,
+                "link,INPUT,2": -1
+            },
+            "range": [
+                0,
+                0
+            ]
+        },
+        {
+            "coefficients": {
+                "Copper Cable,ACTUAL,1": 2,
+                "cable-cable,OUTPUT,4": -1
+            },
+            "range": [
+                0,
+                0
+            ]
+        },
+        {
+            "coefficients": {
+                "circuit,ACTUAL,6": 1
+            },
+            "range": [
+                2,
+                2 
+            ]
+        },
+        {
+            "coefficients": {
+                "link,INPUT,2": -1,
+                "link,OUTPUT,3": 1
+            },
+            "range": [
+                0,
+                null
+            ]
+        },
+        {
+            "coefficients": {
+                "Furnace,ACTUAL,4": 1,
+                "link,OUTPUT,3": -1
+            },
+            "range": [
+                0,
+                0
+            ]
+        },
+        {
+            "coefficients": {
+                "circuit,ACTUAL,6": 3,
+                "circuit-cable,INPUT,5": -1
+            },
+            "range": [
+                0,
+                0
+            ]
+        },
+        {
+            "coefficients": {
+                "cable-cable,OUTPUT,4": 1,
+                "circuit-cable,INPUT,5": -1
+            },
+            "range": [
+                0,
+                null
+            ]
+        }
+    ],
+    "objective": {
+        "coefficients": {
+            "Copper Cable,ACTUAL,1": 1,
+            "Furnace,ACTUAL,4": 1,
+            "circuit,ACTUAL,6": 1
+        },
+        "type": "min"
+    },
+    "variables": {
+        "Copper Cable,ACTUAL,1": [
+            0,
+            null
+        ],
+        "Furnace,ACTUAL,4": [
+            0,
+            null
+        ],
+        "link,INPUT,2": [
+            0,
+            null
+        ],
+        "link,OUTPUT,3": [
+            0,
+            null
+        ],
+        "cable-cable,OUTPUT,4": [
+            0,
+            null
+        ],
+        "circuit-cable,INPUT,5": [
+            0,
+            null
+        ],
+        "circuit,ACTUAL,6": [
+            0,
+            null
+        ]
+    }
+  }
+}
