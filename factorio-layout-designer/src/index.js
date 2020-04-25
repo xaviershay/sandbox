@@ -5,6 +5,7 @@ import createEngine, {
   DefaultPortModel,
   DefaultLinkModel,
   DiagramModel,
+  DefaultDiagramState,
 } from '@projectstorm/react-diagrams'
 import { CanvasWidget } from '@projectstorm/react-canvas-core'
 import { ProductionNode, ProductionNodeFactory } from './ProductionNode'
@@ -19,6 +20,12 @@ import { TSCustomNodeModel } from './custom-node-ts/TSCustomNodeModel';
 // create an instance of the engine
 const engine = createEngine()
 engine.maxNumberPointsPerLink = 0
+
+// Take from simple flow diagram example, where this is documented as "MAGIC"
+const state = engine.getStateMachine().getCurrentState();
+if (state instanceof DefaultDiagramState) {
+  state.dragNewLink.config.allowLooseLinks = false;
+}
 
 // register the two engines
 /*

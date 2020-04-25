@@ -8,6 +8,9 @@ function imageFor(x) {
   return `/img/icons/${x}.png`
 }
 
+class ProductionPortModel extends DefaultPortModel {
+}
+
 export const ProductionNodeWidget = ({ engine, node }) => {
   const [editable, setEditable] = useState(null)
 
@@ -48,7 +51,7 @@ export const ProductionNodeWidget = ({ engine, node }) => {
   const handleAddInputPort = (e) => {
     const portIndex = inputPorts.length + 1
     node.addPort(
-      new DefaultPortModel({
+      new ProductionPortModel({
         in: true,
         name: 'in-' + portIndex,
         icon: null,
@@ -65,7 +68,7 @@ export const ProductionNodeWidget = ({ engine, node }) => {
   const handleAddOutputPort = (e) => {
     const portIndex = outputPorts.length + 1
     node.addPort(
-      new DefaultPortModel({
+      new ProductionPortModel({
         in: false,
         name: 'out-' + portIndex,
         icon: null,
