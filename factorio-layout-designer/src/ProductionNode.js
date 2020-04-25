@@ -69,6 +69,13 @@ export class ProductionNodeWidget extends React.Component {
               {/*Gear by Vincencio from the Noun Project*/}
             <img src="/img/noun_Gear_3267680.png" width="20" height="20" />
             {node.options.productivityBonus > 0 ? `+${node.options.productivityBonus * 100}%` : "-"}
+            {node.options.targetRate && <>
+              {/*Target by Edward Boatman from the Noun Project*/}
+              <br />
+              <img src="/img/noun_Target_308.png" width="20" height="20" />
+              {node.options.targetRate}/s
+            </>}
+
           </div>
           <div className="outputs">
             {outputPorts.map(p =>

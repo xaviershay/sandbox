@@ -114,7 +114,8 @@ const node4 = new ProductionNode({
   name: 'Green Circuit',
   duration: 0.5,
   craftingSpeed: 0.75,
-  productivityBonus: 0.0
+  productivityBonus: 0.0,
+  targetRate: 10
 });
 node4.addPort(
   new DefaultPortModel({
@@ -148,7 +149,7 @@ const node5 = new ProductionNode({
   craftingSpeed: 2,
   productivityBonus: 0
 })
-node5.setPosition(100, 50);
+node5.setPosition(50, 50);
 node5.addPort(
   new DefaultPortModel({
     in: false,
@@ -177,17 +178,14 @@ node6.addPort(
 const link2 = new DefaultLinkModel();
 link2.setSourcePort(node3.getPort('out-1'));
 link2.setTargetPort(node4.getPort('in-1'));
-link2.addLabel("10/s");
 
 const link3 = new DefaultLinkModel();
 link3.setSourcePort(node5.getPort('out-1'));
 link3.setTargetPort(node3.getPort('in-1'));
-link3.addLabel("5/s");
 
 const link4 = new DefaultLinkModel();
 link4.setSourcePort(node6.getPort('out-1'));
 link4.setTargetPort(node4.getPort('in-2'));
-link4.addLabel("3.33/s");
 
 let models = model.addAll(node3, node4, link2, node5, node6, link3, link4);
 /*
@@ -362,7 +360,7 @@ const App = () => {
     console.log(engine.getModel().serialize())
   }
 
-  const handleSolve = () => {
+  const handleSolve = async () => {
     const model = engine.getModel();
     const nodes = model.getNodes();
     const links = model.getLinks();
@@ -371,9 +369,12 @@ const App = () => {
     nodes.forEach(node => {
       solver.addNode(node)
 
+      if (node.options.targetRate) {
+        solver.addTarget(node4, 10)
+      }
+
       console.log(node)
       Object.values(node.ports).forEach(port => {
-        console.log(port.options.in)
         const links = Object.values(port.links)
         if (links.length > 0) {
           solver.addRatio(node, links, port.options.count, port.options.in ? 'INPUT' : 'OUTPUT')
@@ -384,17 +385,34 @@ const App = () => {
         }
       })
     })
-    //solver.addTarget(node3, 10)
-    solver.addTarget(node4, 10)
     console.log(solver.toJson())
-    //links.forEach(link => {
-    //  if (!link.sourcePort && !link.targetPort) {
-    //    return;
-    //  }
+    const solverEndpoint =
+      "https://sa6mifk9pb.execute-api.us-east-1.amazonaws.com/solveLP"
 
-    //  //console.log(link.sourcePort.parent, link.targetPort.parent)
-    //})
-    //console.log(nodes, links)
+    try {
+      const solution = await fetch(solverEndpoint, {
+        method: 'post',
+        body: solver.toJson()
+      })
+
+      const jsonSolution = await solution.json()
+
+      if (jsonSolution.solved) {
+        links.forEach(link => {
+          // Link throughput is the maximum, i.e. the supply solution. The
+          // consumer solution may be less than this if the consumer is
+          // buffering.
+          const v = solver.linkVar(link, 'INPUT')
+          link.labels.length = 0
+          link.addLabel(jsonSolution.variables[v.name] + "/s")
+        });
+        engine.repaintCanvas()
+      } else {
+        console.log("no solution")
+      }
+    } catch(e) {
+      console.log("Error trying to solve", e)
+    }
   }
 
   handleSolve()
