@@ -8,7 +8,12 @@ def coalesce(x, default):
     return default if x is None else x
 
 def lambda_handler(event, context):
-    params = json.loads(base64.b64decode(event['body']))
+    if event['isBase64Encoded']:
+        decoded = base64.b64decode(event['body'])
+    else:
+        decoded = event['body']
+
+    params = json.loads(decoded)
 
     solver = pywraplp.Solver('simple_lp_program',
                           pywraplp.Solver.GLOP_LINEAR_PROGRAMMING)
