@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { DefaultPortModel, NodeModel } from '@projectstorm/react-diagrams'
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core'
 import { PortWidget } from '@projectstorm/react-diagrams'
@@ -57,14 +57,14 @@ export const ProductionNodeWidget = ({ engine, node }) => {
     node.setLocked(editable !== null)
   }, [node, editable])
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     node.options.name = editableValues.name
     node.options.duration = editableValues.duration
     node.options.craftingSpeed = editableValues.craftingSpeed
     node.options.productivityBonus = editableValues.productivityBonus
     node.options.targetRate = editableValues.targetRate
     setEditable(null)
-  }
+  }, [node, editableValues])
 
   useEffect(() => {
     const handle = node.registerListener({
@@ -75,7 +75,7 @@ export const ProductionNodeWidget = ({ engine, node }) => {
       },
     })
     return () => handle.deregister()
-  }, [node, editableValues])
+  }, [node, handleSubmit])
 
   const editableInput = ({ name, format }) => {
     if (format == null) {
