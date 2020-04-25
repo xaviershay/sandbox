@@ -1,7 +1,11 @@
+import sys
 import json
 import base64
 
 from ortools.linear_solver import pywraplp
+
+def coalesce(x, default):
+    return default if x is None else x
 
 def lambda_handler(event, context):
     params = json.loads(base64.b64decode(event['body']))
@@ -12,10 +16,17 @@ def lambda_handler(event, context):
     vars = {}
 
     for k, v in params['variables'].items():
-        vars[k] = solver.NumVar(v[0] or float('-Inf'), v[1] or float('Inf'), k)
+        vars[k] = solver.NumVar(
+            coalesce(v[0], sys.float_info.min),
+            coalesce(v[1], sys.float_info.max),
+            k
+        )
 
     for c in params['constraints']:
-        ct = solver.Constraint(c['range'][0], c['range'][1])
+        ct = solver.Constraint(
+            coalesce(c['range'][0], sys.float_info.min),
+            coalesce(c['range'][1], sys.float_info.max)
+        )
         for k, v in c['coefficients'].items():
             ct.SetCoefficient(vars[k], v)
 
@@ -32,16 +43,24 @@ def lambda_handler(event, context):
     else:
         raise Exception("Unknown objective type: {}".format(objective_type))
 
-    solver.Solve()
+    status = solver.Solve()
 
-    result = {}
-    for k, v in vars.items():
-        result[k] = v.solution_value()
+    if status == pywraplp.Solver.OPTIMAL:
+        result = {}
+        for k, v in vars.items():
+            result[k] = round(v.solution_value(), 5)
 
-    return {
-        'statusCode': 200,
-        'body': json.dumps({
-            "solved": True,
-            "variables": result
-        }) + "\n"
-    }
+        return {
+            'statusCode': 200,
+            'body': json.dumps({
+                "solved": True,
+                "variables": result
+            }) + "\n"
+        }
+    else:
+        return {
+            'statusCode': 200,
+            'body': json.dumps({
+                'solved': False
+            }) + "\n"
+        }
