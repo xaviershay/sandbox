@@ -11,6 +11,11 @@ function imageFor(x) {
 export const ProductionNodeWidget = ({ engine, node }) => {
   const [editable, setEditable] = useState(null)
 
+  // A click event is sent to our elements after a drag action completes, but
+  // we only want to handle them when no drag happened. This state allows up to
+  // track that.
+  const [moved, setMoved] = useState(false)
+
   let defaultPortValues = {}
   Object.values(node.ports).forEach(port => {
     defaultPortValues[port.options.label] = port.options.count
@@ -95,12 +100,20 @@ export const ProductionNodeWidget = ({ engine, node }) => {
       eventDidFire: (e) => {
         if (e.function === 'selectionChanged' && !e.isSelected) {
           handleSubmit()
+        } else if (!moved && e.function === 'positionChanged') {
+          setMoved(true)
         }
       },
     })
     return () => handle.deregister()
-  }, [node, handleSubmit])
+  }, [node, handleSubmit, moved])
 
+  const handleMouseUp = name => {
+    if (!moved) {
+      setEditable(name)
+    }
+    setMoved(false)
+  }
   const editableInput = ({ name, format }) => {
     if (format == null) {
       format = (x) => x
@@ -114,6 +127,7 @@ export const ProductionNodeWidget = ({ engine, node }) => {
           onFocus={(e) => e.currentTarget.select()}
           autoFocus={editable === name}
           onChange={handleInputChange}
+          onMouseDown={e => e.stopPropagation() }
           onKeyDown={(e) => {
             if (e.keyCode === 13) {
               handleSubmit()
@@ -123,7 +137,10 @@ export const ProductionNodeWidget = ({ engine, node }) => {
       )
     } else {
       return (
-        <span onDoubleClick={() => setEditable(name)}>
+        <span
+          onMouseDown={() => setMoved(false)}
+          onMouseUp={() => handleMouseUp(name)}
+        >
           {format(editableValues[name])}
         </span>
       )
@@ -141,6 +158,7 @@ export const ProductionNodeWidget = ({ engine, node }) => {
           onFocus={(e) => e.currentTarget.select()}
           autoFocus={editable === ['port', name].join('-')}
           onChange={handlePortInputChange}
+          onMouseDown={e => e.stopPropagation() }
           onKeyDown={(e) => {
             if (e.keyCode === 13) {
               handleSubmit()
@@ -150,7 +168,10 @@ export const ProductionNodeWidget = ({ engine, node }) => {
       )
     } else {
       return (
-        <span onDoubleClick={() => setEditable(['port', name].join('-'))}>
+        <span
+          onMouseDown={() => setMoved(false)}
+          onMouseUp={() => handleMouseUp(['port', name].join('-'))}
+        >
           {editableValues.ports[name]}
         </span>
       )
@@ -158,7 +179,9 @@ export const ProductionNodeWidget = ({ engine, node }) => {
   }
 
   return (
-    <div className="production-node">
+    <div className="production-node"
+    onMouseDown={() => setEditable(null)}
+    >
       <div className="header">{editableInput({ name: 'name' })}</div>
       <div className="body">
         <div className="inputs">
