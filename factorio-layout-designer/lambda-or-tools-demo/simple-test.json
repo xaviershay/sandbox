@@ -1,0 +1,68 @@
+{
+    "constraints": [
+        {
+            "coefficients": {
+                "Copper Cable,ACTUAL,1": 1,
+                "link,INPUT,2": -1
+            },
+            "range": [
+                0,
+                0
+            ]
+        },
+        {
+            "coefficients": {
+                "link,INPUT,2": -1,
+                "link,OUTPUT,3": 1
+            },
+            "range": [
+                0,
+                null
+            ]
+        },
+        {
+            "coefficients": {
+                "Furnace,ACTUAL,4": 1,
+                "link,OUTPUT,3": -1
+            },
+            "range": [
+                0,
+                0
+            ]
+        },
+        {
+            "coefficients": {
+                "Copper Cable,ACTUAL,1": 1
+            },
+            "range": [
+                10,
+                10
+            ]
+        }
+    ],
+    "objective": {
+        "coefficients": {
+            "Copper Cable,ACTUAL,1": 1,
+            "Furnace,ACTUAL,4": 1
+        },
+        "type": "min"
+    },
+    "variables": {
+        "Copper Cable,ACTUAL,1": [
+            0,
+            null
+        ],
+        "Furnace,ACTUAL,4": [
+            0,
+            null
+        ],
+        "link,INPUT,2": [
+            0,
+            null
+        ],
+        "link,OUTPUT,3": [
+            0,
+            null
+        ]
+    }
+}

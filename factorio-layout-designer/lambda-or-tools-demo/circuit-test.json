@@ -1,0 +1,163 @@
+{
+    "constraints": [
+        {
+            "coefficients": {
+                "Copper Cable,ACTUAL,1": 1,
+                "link,INPUT,2": -1
+            },
+            "range": [
+                0,
+                0
+            ]
+        },
+        {
+            "coefficients": {
+                "link,INPUT,2": -1,
+                "link,OUTPUT,3": 1
+            },
+            "range": [
+                0,
+                null
+            ]
+        },
+        {
+            "coefficients": {
+                "Copper Cable,ACTUAL,1": 2,
+                "link,OUTPUT,4": -1
+            },
+            "range": [
+                0,
+                0
+            ]
+        },
+        {
+            "coefficients": {
+                "Green Circuit,ACTUAL,5": 3,
+                "link,INPUT,6": -1
+            },
+            "range": [
+                0,
+                0
+            ]
+        },
+        {
+            "coefficients": {
+                "link,INPUT,6": -1,
+                "link,OUTPUT,4": 1
+            },
+            "range": [
+                0,
+                null
+            ]
+        },
+        {
+            "coefficients": {
+                "Green Circuit,ACTUAL,5": 1,
+                "link,INPUT,7": -1
+            },
+            "range": [
+                0,
+                0
+            ]
+        },
+        {
+            "coefficients": {
+                "link,INPUT,7": -1,
+                "link,OUTPUT,8": 1
+            },
+            "range": [
+                0,
+                null
+            ]
+        },
+        {
+            "coefficients": {
+                "Green Circuit,ACTUAL,5": 1
+            },
+            "range": [
+                0,
+                0
+            ]
+        },
+        {
+            "coefficients": {
+                "Furnace,ACTUAL,9": 1,
+                "link,OUTPUT,3": -1
+            },
+            "range": [
+                0,
+                0
+            ]
+        },
+        {
+            "coefficients": {
+                "Furnace,ACTUAL,10": 1,
+                "link,OUTPUT,8": -1
+            },
+            "range": [
+                0,
+                0
+            ]
+        },
+        {
+            "coefficients": {
+                "Green Circuit,ACTUAL,5": 1
+            },
+            "range": [
+                10,
+                10
+            ]
+        }
+    ],
+    "objective": {
+        "coefficients": {
+            "Copper Cable,ACTUAL,1": 1,
+            "Furnace,ACTUAL,10": 1,
+            "Furnace,ACTUAL,9": 1,
+            "Green Circuit,ACTUAL,5": 1
+        },
+        "type": "min"
+    },
+    "variables": {
+        "Copper Cable,ACTUAL,1": [
+            0,
+            null
+        ],
+        "Furnace,ACTUAL,10": [
+            0,
+            null
+        ],
+        "Furnace,ACTUAL,9": [
+            0,
+            null
+        ],
+        "Green Circuit,ACTUAL,5": [
+            0,
+            null
+        ],
+        "link,INPUT,2": [
+            0,
+            null
+        ],
+        "link,INPUT,6": [
+            0,
+            null
+        ],
+        "link,INPUT,7": [
+            0,
+            null
+        ],
+        "link,OUTPUT,3": [
+            0,
+            null
+        ],
+        "link,OUTPUT,4": [
+            0,
+            null
+        ],
+        "link,OUTPUT,8": [
+            0,
+            null
+        ]
+    }
+}

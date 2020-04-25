@@ -68,6 +68,47 @@ node3.addPort(
   })
 );
 
+const node5 = new ProductionNode({
+  name: 'Furnace',
+  duration: 2,
+  craftingSpeed: 2,
+  productivityBonus: 0
+})
+node5.setPosition(100, 50);
+node5.addPort(
+  new DefaultPortModel({
+    in: false,
+    name: 'out-1',
+    icon: 'copper-plate',
+    count: 1,
+  })
+);
+
+/*
+const node3 = new ProductionNode({
+  name: 'Copper Cable',
+  duration: 0.5,
+  craftingSpeed: 1.25,
+  productivityBonus: 0.20
+});
+node3.setPosition(300, 50);
+node3.addPort(
+  new DefaultPortModel({
+    in: true,
+    name: 'in-1',
+    icon: 'copper-plate',
+    count: 1,
+  })
+);
+node3.addPort(
+  new DefaultPortModel({
+    in: false,
+    name: 'out-1',
+    icon: 'copper-cable',
+    count: 2,
+  })
+);
+
 const node4 = new ProductionNode({
   name: 'Green Circuit',
   duration: 0.5,
@@ -148,7 +189,149 @@ link4.setTargetPort(node4.getPort('in-2'));
 link4.addLabel("3.33/s");
 
 let models = model.addAll(node3, node4, link2, node5, node6, link3, link4);
+*/
+const link3 = new DefaultLinkModel();
+link3.setSourcePort(node5.getPort('out-1'));
+link3.setTargetPort(node3.getPort('in-1'));
+link3.addLabel("5/s");
 
+let models = model.addAll(node3, node5, link3);
+class ProductionSolver {
+  constructor() {
+    this.nodes = []
+    this.variables = {}
+    this.objective = {}
+    this.constraints = []
+  }
+
+  addNode(node) {
+    const v = this.nodeVar(node, 'ACTUAL')
+
+    // The rate of all nodes should be minimized
+    this.objective[v.name] = 1.0
+  }
+
+  // Ensure that the solution has a rate matching desired for this node.
+  // Typically there will one of these on the ultimate output node, though
+  // multiple are supported, on any node. If there is a conflict, a 'best
+  // effort' solution will be returned, where some nodes actual rates will not
+  // match the desired asked for here.
+  // 
+  // TODO: Best effort not support yet, need to add error variables
+  addTarget(node, desiredRate) {
+    const nodeVar = this.nodeVar(node, 'ACTUAL')
+
+    const constraint = {
+      range: [desiredRate, desiredRate],
+      coefficients: {
+        [nodeVar.name]: 1
+      }
+    }
+
+    this.constraints.push(constraint)
+  }
+
+  // Ensure that the sum on the end of all the links is in relation to the rate
+  // of the recipe. The given rate is always for a single execution of the
+  // recipe, so the ratio is always (X1 + X2 + ... + XN)*Rate:1
+  //
+  // For example, if a copper wire recipe (1 plate makes 2 wires) is connected
+  // to two different consumers, then the sum of the wire rate flowing over
+  // those two links must be equal to 2 time the rate of the recipe.  For the
+  // steel input to a solar panel, the sum of every input variable to this node
+  // must equal 5 * rate.
+  addRatio(node, links, rate, type) {
+    const nodeVar = this.nodeVar(node, 'ACTUAL')
+
+    let constraint = {
+      range: [0, 0],
+      coefficients: {
+        [nodeVar.name]: rate,
+      }
+    }
+
+    links.forEach(link => {
+      const linkVar = this.linkVar(link, type)
+      constraint.coefficients[linkVar.name] = -1
+    })
+
+    this.constraints.push(constraint)
+  }
+
+  // Constrain input to a node for a particular item so that the node does not
+  // consume more than is being produced by the supplier.
+  // 
+  // Consuming less than is being produced is fine. This represents a backup.
+  addInputLinks(node, links, rate) {
+    links.forEach(link => {
+      const supplierVar = this.linkVar(link, 'OUTPUT')
+      const consumerVar = this.linkVar(link, 'INPUT')
+
+      // The consuming end of the link must be no greater than the supplyind
+      // end.
+      {
+        const constraint = {
+          range: [0, Number.POSITIVE_INFINTIY],
+          coefficients: {
+            [supplierVar.name]: 1,
+            [consumerVar.name]: -1
+          }
+        }
+        this.constraints.push(constraint)
+      }
+
+      // TODO:
+      // Minimize over-supply. Necessary for unbalanced diamond recipe chains
+      // (such as Yuoki smelting - this doesn't occur in Vanilla) where the
+      // deficit is made up by an infinite supplier, in order to not just grab
+      // everything from that supplier and let produced materials backup. Also,
+      // this is needed so that resources don't "pool" in pass-through nodes.
+      //
+      // TODO: A more correct solution for pass-through would be to forbid
+      // over-supply on them.
+    })
+  }
+
+  toJson() {
+    let variableHash = {}
+    Object.values(this.variables).forEach(v => {
+      variableHash[v.name] = v.range
+    })
+    const doc = {
+      variables: variableHash,
+      constraints: this.constraints,
+      objective: {
+        type: 'min',
+        coefficients: this.objective
+      }
+    }
+    console.log(doc)
+    return JSON.stringify(doc)
+  }
+
+  nodeVar(node, type) {
+    return this.variableFor(node.options.id, type, node.options.name)
+  }
+
+  linkVar(link, type) {
+    return this.variableFor(link.options.id, type, 'link')
+  }
+
+  variableFor(objectId, type, name) {
+    const varId = [objectId, type].join(':')
+    if (this.variables[varId]) {
+      return this.variables[varId]
+    }
+
+    const newVar = {
+      name: [name, type, Object.keys(this.variables).length + 1].join(','),
+      range: [0, Number.POSITIVE_INFINITY]
+    }
+
+    this.variables[varId] = newVar;
+    return newVar;
+  }
+}
 models.forEach(item => {
   item.registerListener({
     eventDidFire: e => {
@@ -170,10 +353,48 @@ const App = () => {
   const handleSerialize = () => {
     console.log(engine.getModel().serialize())
   }
+
+  const handleSolve = () => {
+    const model = engine.getModel();
+    const nodes = model.getNodes();
+    const links = model.getLinks();
+
+    let solver = new ProductionSolver();
+    nodes.forEach(node => {
+      solver.addNode(node)
+
+      console.log(node)
+      Object.values(node.ports).forEach(port => {
+        console.log(port.options.in)
+        const links = Object.values(port.links)
+        if (links.length > 0) {
+          solver.addRatio(node, links, port.options.count, port.options.in ? 'INPUT' : 'OUTPUT')
+
+          if (port.options.in) {
+            solver.addInputLinks(node, links)
+          }
+        }
+      })
+    })
+    solver.addTarget(node3, 10)
+    console.log(solver.toJson())
+    //links.forEach(link => {
+    //  if (!link.sourcePort && !link.targetPort) {
+    //    return;
+    //  }
+
+    //  //console.log(link.sourcePort.parent, link.targetPort.parent)
+    //})
+    //console.log(nodes, links)
+  }
+
+  handleSolve()
+
   return (
     <div style={{width: "100%", height: "100%"}}>
       <div>
         <button onClick={handleSerialize}>Serialize</button>
+        <button onClick={handleSolve}>Solve</button>
       </div>
       <CanvasWidget className="diagram-container" engine={engine} />
     </div>
