@@ -19,11 +19,11 @@ export const ProductionNodeWidget = ({ engine, node }) => {
     defaultPortValues[port.options.label] = port.options.count
   })
   const [editableValues, setEditableValues] = useState({
-    name: node.options.name,
-    duration: node.options.duration,
-    craftingSpeed: node.options.craftingSpeed,
-    productivityBonus: node.options.productivityBonus,
-    targetRate: node.options.targetRate || '',
+    name: node.name,
+    duration: node.duration,
+    craftingSpeed: node.craftingSpeed,
+    productivityBonus: node.productivityBonus,
+    targetRate: node.targetRate || '',
     ports: defaultPortValues,
   })
 
@@ -90,13 +90,14 @@ export const ProductionNodeWidget = ({ engine, node }) => {
   }, [node, editable])
 
   const handleSubmit = useCallback(() => {
-    node.options.name = parseFloat(editableValues.name)
-    node.options.duration = parseFloat(editableValues.duration)
-    node.options.craftingSpeed = parseFloat(editableValues.craftingSpeed)
-    node.options.productivityBonus = parseFloat(
-      editableValues.productivityBonus
-    )
-    node.options.targetRate = parseFloat(editableValues.targetRate)
+    node.options = {
+      ...node.options,
+      name: parseFloat(editableValues.name),
+      duration: parseFloat(editableValues.duration),
+      craftingSpeed: parseFloat(editableValues.craftingSpeed),
+      productivityBonus: parseFloat(editableValues.productivityBonus),
+      targetRate: parseFloat(editableValues.targetRate),
+    }
     Object.entries(editableValues.ports).forEach(([portName, value]) => {
       node.ports[portName].options.count = parseFloat(value)
     })
@@ -283,16 +284,9 @@ export const ProductionNodeWidget = ({ engine, node }) => {
             height="20"
             alt="Assemblers Required"
           />
-          {/*
-          // Copied from Foreman, TODO: machines have to wait for a new tick before
-          // starting a new item, so round up to nearest tick (assume 60fps)
-            // */}
           <span>
-            {((x) => (x > 0 ? x : '-'))(
-              Math.ceil(
-                (node.options.duration / node.options.craftingSpeed) *
-                  node.options.calculatedRate
-              )
+            {((x) => (x > 0 ? Math.round(x * 100) / 100 : '-'))(
+              node.assemblersRequired
             )}
           </span>
         </div>
@@ -336,20 +330,53 @@ export class ProductionNode extends NodeModel {
       ...options,
       type: 'production-node',
     })
-    //this.color = options.color || { options: 'red' };
+  }
 
-    // setup an in and out port
+  get id() {
+    return this.options.id
+  }
+  get name() {
+    return this.options.name
+  }
+  get duration() {
+    return this.options.duration
+  }
+  get craftingSpeed() {
+    return this.options.craftingSpeed
+  }
+  get productivityBonus() {
+    return this.options.productivityBonus
+  }
+  get targetRate() {
+    return this.options.targetRate
+  }
+
+  get assemblersRequired() {
+    const { calculatedRate } = this.options
+
+    if (!calculatedRate) return null
+
+    // Copied from Foreman, machines have to wait for a new tick before
+    // starting a new item, so round up to nearest tick (assume 60fps). Return
+    // fractional assemblers even though not possible in reality in order to
+    // help user adjust and tweak.
+    return (
+      Math.ceil((this.duration / this.craftingSpeed) * calculatedRate * 60) / 60
+    )
+  }
+
+  set calculatedRate(x) {
+    console.log('claac rate', x)
+    this.options.calculatedRate = x
   }
 
   serialize() {
     return {
       ...super.serialize(),
-      //color: this.options.color
     }
   }
 
   deserialize(ob, engine) {
     super.deserialize(ob, engine)
-    //this.color = ob.color;
   }
 }

@@ -259,8 +259,7 @@ class ProductionSolver {
 
     // Output ratios are increased by any productivity bonus attached to the
     // node.
-    const productivity =
-      1 + (type === 'OUTPUT' ? node.options.productivityBonus : 0)
+    const productivity = 1 + (type === 'OUTPUT' ? node.productivityBonus : 0)
 
     let constraint = {
       range: [0, 0],
@@ -328,7 +327,7 @@ class ProductionSolver {
   }
 
   nodeVar(node, type) {
-    return this.variableFor(node.options.id, type, node.options.name)
+    return this.variableFor(node.id, type, node.name)
   }
 
   linkVar(link, type) {
@@ -386,12 +385,9 @@ const App = () => {
     nodes.forEach((node) => {
       solver.addNode(node)
 
-      const targetRate = node.options.targetRate
+      const targetRate = node.targetRate
       if (targetRate > 0) {
-        solver.addTarget(
-          node,
-          targetRate / (1 + node.options.productivityBonus)
-        )
+        solver.addTarget(node, targetRate / (1 + node.productivityBonus))
       }
 
       Object.values(node.ports).forEach((port) => {
@@ -437,7 +433,7 @@ const App = () => {
         nodes.forEach((node) => {
           const v = solver.nodeVar(node, 'ACTUAL')
 
-          node.options.calculatedRate = jsonSolution.variables[v.name]
+          node.calculatedRate = jsonSolution.variables[v.name]
         })
         engine.repaintCanvas()
       } else {
