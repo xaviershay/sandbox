@@ -179,7 +179,6 @@ html, body, #application{
   margin-left: 1em;
 }
 
-// TODO: Stop node dimensions changing when in edit mode
 .production-node .header input {
   flex-grow: 1
 }
@@ -190,6 +189,10 @@ html, body, #application{
 .production-node .body input {
   width: 30px;
   font-size: 80%;
+}
+
+.production-node .body .port-container input {
+  width: 15px;
 }
 
 .icon-picker {
