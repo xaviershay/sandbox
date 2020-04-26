@@ -203,8 +203,14 @@ const ProductionNodeWidget = ({ engine, node }) => {
 
   // RENDER
 
+  const nodeStyle = node.isSelected() ? { borderColor: 'white' } : {}
+
   return (
-    <div className="production-node" onMouseDown={() => setEditable(null)}>
+    <div
+      className="production-node"
+      onMouseDown={() => setEditable(null)}
+      style={nodeStyle}
+    >
       <div className="header">{editableInput({ name: 'name' })}</div>
       <div className="body">
         <div className="inputs">
