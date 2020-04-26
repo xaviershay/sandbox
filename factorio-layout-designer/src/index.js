@@ -5,10 +5,12 @@ import createEngine, {
   DefaultPortModel,
   DefaultLinkModel,
   DiagramModel,
-  DefaultDiagramState,
 } from '@projectstorm/react-diagrams'
 import { CanvasWidget } from '@projectstorm/react-canvas-core'
 import { ProductionNode, ProductionNodeFactory } from './ProductionNode'
+import { ModalProvider } from 'react-modal-hook'
+import ReactModal from 'react-modal'
+import DiagramState from './DiagramState'
 /*
 import { JSCustomNodeFactory } from './custom-node-js/JSCustomNodeFactory';
 import { TSCustomNodeFactory } from './custom-node-ts/TSCustomNodeFactory';
@@ -21,11 +23,9 @@ import { TSCustomNodeModel } from './custom-node-ts/TSCustomNodeModel';
 const engine = createEngine()
 engine.maxNumberPointsPerLink = 0
 
-// Take from simple flow diagram example, where this is documented as "MAGIC"
-const state = engine.getStateMachine().getCurrentState();
-if (state instanceof DefaultDiagramState) {
-  state.dragNewLink.config.allowLooseLinks = false;
-}
+// Replace the default states with our own that do a better job handling right
+// click.
+engine.getStateMachine().pushState(new DiagramState())
 
 // register the two engines
 /*
@@ -199,7 +199,7 @@ const link4 = new DefaultLinkModel()
 link4.setSourcePort(node6.getPort('out-1'))
 link4.setTargetPort(node4.getPort('in-2'))
 
-let models = model.addAll(node3, node4, link2, node5, node6, link3, link4)
+model.addAll(node3, node4, link2, node5, node6, link3, link4)
 /*
 const link3 = new DefaultLinkModel();
 link3.setSourcePort(node5.getPort('out-1'));
@@ -358,25 +358,6 @@ class ProductionSolver {
   }
 }
 
-const nodeListener = (e) => {
-  //console.log(e)
-  switch (e.function) {
-    case 'nodeStructureChanged':
-      console.log('repainting')
-      engine.repaintCanvas()
-      break
-    default:
-    // it's fine
-  }
-}
-models.forEach((item) => {
-  item.registerListener({
-    eventDidFire: nodeListener,
-  })
-})
-
-//####################################################
-
 // install the model into the engine
 engine.setModel(model)
 
@@ -392,7 +373,9 @@ const App = () => {
   const handleSolve = async () => {
     const model = engine.getModel()
     const nodes = model.getNodes()
-    const links = model.getLinks().filter(link => link.sourcePort && link.targetPort)
+    const links = model
+      .getLinks()
+      .filter((link) => link.sourcePort && link.targetPort)
 
     let solver = new ProductionSolver()
     nodes.forEach((node) => {
@@ -474,7 +457,7 @@ const App = () => {
           >
             <div className="header">Blank</div>
           </div>
-    {/*
+          {/*
           <div className="tray-item production-node" draggable={true}>
             <div className="header">
               Green Circuit
@@ -502,7 +485,6 @@ const App = () => {
         <div
           className="canvas"
           onDrop={(event) => {
-            console.log(event)
             let data = null
             try {
               data = JSON.parse(
@@ -510,9 +492,8 @@ const App = () => {
               )
             } catch (e) {
               // Not an event we know how to handle
-              return null;
+              return null
             }
-            console.log(data)
             const node = new ProductionNode({
               name: data.name,
               duration: 1,
@@ -520,34 +501,29 @@ const App = () => {
               productivityBonus: 0,
             })
             const point = engine.getRelativeMousePoint(event)
-            console.log(point)
             point.x = point.x - nodeWidth / 2
             point.y = point.y - nodeHeight / 2
             node.setPosition(point)
-            let item = engine.getModel().addNode(node)
-            item.registerListener({
-              eventDidFire: nodeListener,
-            })
+            engine.getModel().addNode(node)
             engine.repaintCanvas()
           }}
           onDragOver={(event) => {
             event.preventDefault()
           }}
         >
-          <CanvasWidget className="diagram-container"
-    engine={engine} />
+          <CanvasWidget className="diagram-container" engine={engine} />
         </div>
       </div>
     </div>
   )
 }
 
-// TODO: DRY up with ProductionNode
-function imageFor(x) {
-  if (x == null) return null
-  return `/img/icons/${x}.png`
-}
-
+ReactModal.setAppElement('#application')
 document.addEventListener('DOMContentLoaded', () => {
-  ReactDOM.render(<App />, document.querySelector('#application'))
+  ReactDOM.render(
+    <ModalProvider>
+      <App />
+    </ModalProvider>,
+    document.querySelector('#application')
+  )
 })

@@ -2,15 +2,60 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { DefaultPortModel, NodeModel } from '@projectstorm/react-diagrams'
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core'
 import { PortWidget } from '@projectstorm/react-diagrams'
+import ReactModal from 'react-modal'
+import { useModal } from 'react-modal-hook'
+import uniqBy from 'lodash/uniqBy'
 
 function imageFor(x) {
-  if (x == null) return "/img/transparent.png";
+  if (x == null) return '/img/transparent.png'
   return `/img/icons/${x}.png`
 }
 
-class ProductionPortModel extends DefaultPortModel {
-}
+class ProductionPortModel extends DefaultPortModel {}
 
+const PortIcon = ({ engine, port, onChangeIcon }) => {
+  const icon = port.options.icon
+  const [showModal, hideModal] = useModal(() => (
+    <ReactModal isOpen onRequestClose={hideModal}>
+      <input placeholder="Search" />
+      <div>
+        {['iron-plate', 'copper-plate', 'copper-cable', 'green-circuit'].map(
+          (icon) => (
+            <button
+              key={icon}
+              onClick={() => {
+                hideModal()
+                onChangeIcon(icon)
+              }}
+            >
+              <img src={imageFor(icon)} height="20" width="20" alt={icon} />
+            </button>
+          )
+        )}
+      </div>
+    </ReactModal>
+  ))
+
+  return (
+    <div
+      onContextMenu={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        showModal()
+      }}
+    >
+      <PortWidget engine={engine} port={port}>
+        <img
+          draggable={false}
+          src={imageFor(icon)}
+          width="20"
+          height="20"
+          alt={icon}
+        />
+      </PortWidget>
+    </div>
+  )
+}
 export const ProductionNodeWidget = ({ engine, node }) => {
   const [editable, setEditable] = useState(null)
 
@@ -20,7 +65,7 @@ export const ProductionNodeWidget = ({ engine, node }) => {
   const [moved, setMoved] = useState(false)
 
   let defaultPortValues = {}
-  Object.values(node.ports).forEach(port => {
+  Object.values(node.ports).forEach((port) => {
     defaultPortValues[port.options.label] = port.options.count
   })
   const [editableValues, setEditableValues] = useState({
@@ -41,7 +86,7 @@ export const ProductionNodeWidget = ({ engine, node }) => {
     const { name, value } = e.target
     setEditableValues({
       ...editableValues,
-      ports: {...editableValues.ports, [name]: value}
+      ports: { ...editableValues.ports, [name]: value },
     })
   }
 
@@ -60,7 +105,7 @@ export const ProductionNodeWidget = ({ engine, node }) => {
     )
     setEditableValues({
       ...editableValues,
-      ports: {...editableValues.ports, ['in-' + portIndex]: 1}
+      ports: { ...editableValues.ports, ['in-' + portIndex]: 1 },
     })
     engine.repaintCanvas()
   }
@@ -77,10 +122,12 @@ export const ProductionNodeWidget = ({ engine, node }) => {
     )
     setEditableValues({
       ...editableValues,
-      ports: {...editableValues.ports, ['out-' + portIndex]: 1}
+      ports: { ...editableValues.ports, ['out-' + portIndex]: 1 },
     })
     engine.repaintCanvas()
   }
+
+  const forceUpdate = React.useReducer(() => ({}))[1]
 
   useEffect(() => {
     node.setLocked(editable !== null)
@@ -90,7 +137,9 @@ export const ProductionNodeWidget = ({ engine, node }) => {
     node.options.name = parseFloat(editableValues.name)
     node.options.duration = parseFloat(editableValues.duration)
     node.options.craftingSpeed = parseFloat(editableValues.craftingSpeed)
-    node.options.productivityBonus = parseFloat(editableValues.productivityBonus)
+    node.options.productivityBonus = parseFloat(
+      editableValues.productivityBonus
+    )
     node.options.targetRate = parseFloat(editableValues.targetRate)
     Object.entries(editableValues.ports).forEach(([portName, value]) => {
       node.ports[portName].options.count = parseFloat(value)
@@ -105,13 +154,15 @@ export const ProductionNodeWidget = ({ engine, node }) => {
           handleSubmit()
         } else if (!moved && e.function === 'positionChanged') {
           setMoved(true)
+        } else if (e.function === 'repaint') {
+          forceUpdate()
         }
       },
     })
     return () => handle.deregister()
-  }, [node, handleSubmit, moved])
+  }, [node, handleSubmit, moved, forceUpdate])
 
-  const handleMouseUp = name => {
+  const handleMouseUp = (name) => {
     if (!moved) {
       setEditable(name)
     }
@@ -130,7 +181,7 @@ export const ProductionNodeWidget = ({ engine, node }) => {
           onFocus={(e) => e.currentTarget.select()}
           autoFocus={editable === name}
           onChange={handleInputChange}
-          onMouseDown={e => e.stopPropagation() }
+          onMouseDown={(e) => e.stopPropagation()}
           onKeyDown={(e) => {
             if (e.keyCode === 13) {
               handleSubmit()
@@ -150,7 +201,7 @@ export const ProductionNodeWidget = ({ engine, node }) => {
     }
   }
 
-  const editablePortInput = port => {
+  const editablePortInput = (port) => {
     const name = port.options.label
 
     if (editable) {
@@ -161,7 +212,7 @@ export const ProductionNodeWidget = ({ engine, node }) => {
           onFocus={(e) => e.currentTarget.select()}
           autoFocus={editable === ['port', name].join('-')}
           onChange={handlePortInputChange}
-          onMouseDown={e => e.stopPropagation() }
+          onMouseDown={(e) => e.stopPropagation()}
           onKeyDown={(e) => {
             if (e.keyCode === 13) {
               handleSubmit()
@@ -181,27 +232,46 @@ export const ProductionNodeWidget = ({ engine, node }) => {
     }
   }
 
+  const handleChangeIcon = (port, icon) => {
+    // Find all ports connected to this one, then change all of their icons.
+    // For each source/target port in links, change icon
+    let seen = {}
+    let affectedNodes = []
+
+    let f = (port) => {
+      if (!port) return
+      if (seen[port.options.id]) return
+
+      seen[port.options.id] = true
+      port.options.icon = icon
+      affectedNodes.push(port.parent)
+
+      Object.values(port.links).forEach((link) => {
+        f(link.sourcePort)
+        f(link.targetPort)
+      })
+    }
+    f(port)
+    uniqBy(affectedNodes, (n) => n.options.id).forEach((node) => {
+      node.fireEvent({}, 'repaint')
+    })
+  }
+
   return (
-    <div className="production-node"
-    onMouseDown={() => setEditable(null)}
-    >
+    <div className="production-node" onMouseDown={() => setEditable(null)}>
       <div className="header">{editableInput({ name: 'name' })}</div>
       <div className="body">
         <div className="inputs">
-          {inputPorts.map((p) =>
-            <div key={p.options.id} className='port-container'>
-              <PortWidget key={p.options.id} engine={engine} port={p}>
-                <img
-                  draggable={false}
-                  src={imageFor(p.options.icon)}
-                  width="20"
-                  height="20"
-                  alt={p.options.icon}
-                />
-              </PortWidget>
+          {inputPorts.map((p) => (
+            <div key={p.options.id} className="port-container">
+              <PortIcon
+                engine={engine}
+                port={p}
+                onChangeIcon={(icon) => handleChangeIcon(p, icon)}
+              />
               {editablePortInput(p)}
             </div>
-          )}
+          ))}
           <div className="port-container new" onClick={handleAddInputPort}>
             +
           </div>
@@ -251,20 +321,16 @@ export const ProductionNodeWidget = ({ engine, node }) => {
           })}
         </div>
         <div className="outputs">
-          {outputPorts.map((p) =>
-            <div className='port-container' key={p.options.id}>
-            {editablePortInput(p)}
-            <PortWidget key={p.options.id} engine={engine} port={p}>
-              <img
-                draggable={false}
-                src={imageFor(p.options.icon)}
-                width="20"
-                height="20"
-                alt={p.options.icon}
+          {outputPorts.map((p) => (
+            <div className="port-container" key={p.options.id}>
+              {editablePortInput(p)}
+              <PortIcon
+                engine={engine}
+                port={p}
+                onChangeIcon={(icon) => handleChangeIcon(p, icon)}
               />
-            </PortWidget>
             </div>
-          )}
+          ))}
           <div className="port-container new" onClick={handleAddOutputPort}>
             +
           </div>
