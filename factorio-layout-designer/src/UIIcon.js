@@ -39,7 +39,6 @@ const icons = {
 const UIIcon = ({ name }) => {
   const icon = icons[name]
 
-  console.log(icon)
   if (!icon) throw new Error(`Unknown UI icon: ${name}`)
 
   return <img src={icon.url} width="20" height="20" alt={icon.title} />

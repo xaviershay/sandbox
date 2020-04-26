@@ -45,6 +45,25 @@ export class ProductionNode extends NodeModel {
   get targetRate() {
     return this.options.targetRate
   }
+  get targetRateUnits() {
+    return this.options.targetRateUnits
+  }
+  get targetRateInSeconds() {
+    if (!this.options.targetRate) {
+      return null
+    }
+
+    const multiplier = {
+      s: 1,
+      m: 1 / 60.0,
+      h: 1 / 60.0 / 60.0,
+    }[this.targetRateUnits]
+
+    if (!multiplier) {
+      throw new Error(`Unknown target rate unit: ${this.targetRateUnits}`)
+    }
+    return this.targetRate * multiplier
+  }
 
   get inputPorts() {
     return Object.values(this.ports).filter((p) => p.options.in)
@@ -101,7 +120,6 @@ export class ProductionNode extends NodeModel {
   }
 
   set calculatedRate(x) {
-    console.log('claac rate', x)
     this.options.calculatedRate = x
   }
 

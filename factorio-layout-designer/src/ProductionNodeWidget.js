@@ -23,6 +23,7 @@ const ProductionNodeWidget = ({ engine, node }) => {
     craftingSpeed: node.craftingSpeed,
     productivityBonus: node.productivityBonus,
     targetRate: node.targetRate || '',
+    targetRateUnits: node.targetRateUnits || 's',
     ports: defaultPortValues,
   })
 
@@ -51,13 +52,18 @@ const ProductionNodeWidget = ({ engine, node }) => {
     forceUpdate()
   }
 
+  const parseNumericInput = (x) => {
+    const parsed = parseFloat(x)
+    return isNaN(parsed) ? null : x
+  }
   const handleSubmit = useCallback(() => {
     node.update({
-      name: parseFloat(editableValues.name),
-      duration: parseFloat(editableValues.duration),
-      craftingSpeed: parseFloat(editableValues.craftingSpeed),
-      productivityBonus: parseFloat(editableValues.productivityBonus),
-      targetRate: parseFloat(editableValues.targetRate),
+      name: editableValues.name,
+      duration: parseNumericInput(editableValues.duration),
+      craftingSpeed: parseNumericInput(editableValues.craftingSpeed),
+      productivityBonus: parseNumericInput(editableValues.productivityBonus),
+      targetRate: parseNumericInput(editableValues.targetRate),
+      targetRateUnits: editableValues.targetRateUnits,
     })
     Object.entries(editableValues.ports).forEach(([portName, value]) => {
       node.ports[portName].options.count = parseFloat(value)
@@ -171,6 +177,52 @@ const ProductionNodeWidget = ({ engine, node }) => {
     }
   }
 
+  const editableTargetInput = ({ name, format }) => {
+    if (format == null) {
+      format = (x) => x
+    }
+
+    if (editable) {
+      return (
+        <div
+          onMouseDown={(e) => e.stopPropagation()}
+          style={{ display: 'flex' }}
+        >
+          <input
+            name={name}
+            value={editableValues[name]}
+            onFocus={(e) => e.currentTarget.select()}
+            autoFocus={editable === name}
+            onChange={handleInputChange}
+            onKeyDown={(e) => {
+              if (e.keyCode === 13) {
+                handleSubmit()
+              }
+            }}
+          />
+          <select
+            name="targetRateUnits"
+            value={editableValues.targetRateUnits}
+            onChange={handleInputChange}
+          >
+            <option value="s">/s</option>
+            <option value="m">/m</option>
+            <option value="h">/h</option>
+          </select>
+        </div>
+      )
+    } else {
+      return (
+        <span
+          onMouseDown={() => setMoved(false)}
+          onMouseUp={() => handleMouseUp(name)}
+        >
+          {format(editableValues[name])}
+        </span>
+      )
+    }
+  }
+
   const editablePortInput = (port) => {
     const name = port.options.label
 
@@ -204,15 +256,18 @@ const ProductionNodeWidget = ({ engine, node }) => {
 
   // RENDER
 
+  const targetNode = node.targetRate > 0
   const nodeStyle = node.isSelected() ? { borderColor: 'white' } : {}
 
   return (
     <div
-      className="production-node"
+      className={`production-node ${targetNode ? 'target-node' : ''}`}
       onMouseDown={() => setEditable(null)}
       style={nodeStyle}
     >
-      <div className="header">{editableInput({ name: 'name' })}</div>
+      {node.name && (
+        <div className="header">{editableInput({ name: 'name' })}</div>
+      )}
       <div className="body">
         <div className="inputs">
           {node.inputPorts.map((p) => (
@@ -222,60 +277,72 @@ const ProductionNodeWidget = ({ engine, node }) => {
                 port={p}
                 onChangeIcon={(icon) => handleChangeIcon(p, icon)}
               />
-              {editablePortInput(p)}
+              {!targetNode && editablePortInput(p)}
             </div>
           ))}
           <div className="port-container new" onClick={handleAddPort('INPUT')}>
             +
           </div>
         </div>
-        <div className="assembler">
-          <div className="row">
-            <UIIcon name="duration" />
-            {editableInput({ name: 'duration', format: (x) => `${x}s` })}
-          </div>
-          <div className="row">
-            <UIIcon name="craftingSpeed" />
-            {editableInput({ name: 'craftingSpeed' })}
-          </div>
-          <div className="row">
-            <UIIcon name="productivityBonus" />
-            {editableInput({
-              name: 'productivityBonus',
-              format: (x) => (x > 0 ? `+${x * 100}%` : '-'),
-            })}
-          </div>
-          <div className="row">
-            <UIIcon name="targetRate" />
-            {editableInput({
-              name: 'targetRate',
-              format: (x) => (x > 0 ? `${x}/s` : '-'),
-            })}
-          </div>
-          <div className="row">
-            <UIIcon name="assemblersRequired" />
-            <span>
-              {((x) => (x > 0 ? Math.round(x * 100) / 100 : '-'))(
-                node.assemblersRequired
-              )}
-            </span>
-          </div>
-        </div>
-        <div className="outputs">
-          {node.outputPorts.map((p) => (
-            <div className="port-container" key={p.options.id}>
-              {editablePortInput(p)}
-              <PortIcon
-                engine={engine}
-                port={p}
-                onChangeIcon={(icon) => handleChangeIcon(p, icon)}
-              />
+        {node.targetRate && (
+          <>
+            <div className="assembler">
+              <div className="row targetRate">
+                {editableTargetInput({
+                  name: 'targetRate',
+                  format: (x) => (x > 0 ? `${x}/${node.targetRateUnits}` : '-'),
+                })}
+              </div>
             </div>
-          ))}
-          <div className="port-container new" onClick={handleAddPort('OUTPUT')}>
-            +
-          </div>
-        </div>
+          </>
+        )}
+        {node.targetRate == null && (
+          <>
+            <div className="assembler">
+              <div className="row">
+                <UIIcon name="duration" />
+                {editableInput({ name: 'duration', format: (x) => `${x}s` })}
+              </div>
+              <div className="row">
+                <UIIcon name="craftingSpeed" />
+                {editableInput({ name: 'craftingSpeed' })}
+              </div>
+              <div className="row">
+                <UIIcon name="productivityBonus" />
+                {editableInput({
+                  name: 'productivityBonus',
+                  format: (x) => (x > 0 ? `+${x * 100}%` : '-'),
+                })}
+              </div>
+              <div className="row">
+                <UIIcon name="assemblersRequired" />
+                <span>
+                  {((x) => (x > 0 ? Math.round(x * 100) / 100 : '-'))(
+                    node.assemblersRequired
+                  )}
+                </span>
+              </div>
+            </div>
+            <div className="outputs">
+              {node.outputPorts.map((p) => (
+                <div className="port-container" key={p.options.id}>
+                  {editablePortInput(p)}
+                  <PortIcon
+                    engine={engine}
+                    port={p}
+                    onChangeIcon={(icon) => handleChangeIcon(p, icon)}
+                  />
+                </div>
+              ))}
+              <div
+                className="port-container new"
+                onClick={handleAddPort('OUTPUT')}
+              >
+                +
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

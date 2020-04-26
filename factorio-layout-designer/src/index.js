@@ -53,7 +53,6 @@ const node4 = new ProductionNode({
   duration: 0.5,
   craftingSpeed: 0.75,
   productivityBonus: 0.0,
-  targetRate: 10,
 })
 node4.addPort(
   new DefaultPortModel({
@@ -113,6 +112,17 @@ node6.addPort(
   })
 )
 
+const node7 = new ProductionNode({
+  name: null,
+  duration: 1,
+  craftingSpeed: 1,
+  productivityBonus: 0,
+  targetRate: 10,
+  targetRateUnits: 'm',
+})
+node7.setPosition(900, 100)
+node7.addInput()
+
 const link2 = new DefaultLinkModel()
 link2.setSourcePort(node3.getPort('out-1'))
 link2.setTargetPort(node4.getPort('in-1'))
@@ -125,7 +135,11 @@ const link4 = new DefaultLinkModel()
 link4.setSourcePort(node6.getPort('out-1'))
 link4.setTargetPort(node4.getPort('in-2'))
 
-model.addAll(node3, node4, link2, node5, node6, link3, link4)
+const link5 = new DefaultLinkModel()
+link5.setSourcePort(node4.getPort('out-1'))
+link5.setTargetPort(node7.getPort('in-1'))
+
+model.addAll(node3, node4, link2, node5, node6, node7, link3, link4, link5)
 
 // install the model into the engine
 engine.setModel(model)
@@ -150,7 +164,7 @@ const App = () => {
     nodes.forEach((node) => {
       solver.addNode(node)
 
-      const targetRate = node.targetRate
+      const targetRate = node.targetRateInSeconds
       if (targetRate > 0) {
         solver.addTarget(node, targetRate / (1 + node.productivityBonus))
       }
@@ -181,7 +195,7 @@ const App = () => {
         // buffering.
         const v = solver.linkVar(link, 'INPUT')
         link.labels.length = 0
-        link.addLabel(Math.round(solution[v.name], 2) + '/s')
+        link.addLabel(Math.round(solution[v.name] * 1000) / 1000 + '/s')
 
         // TODO: This might not work with serialize. See
         // https://github.com/projectstorm/react-diagrams/issues/497
@@ -215,11 +229,62 @@ const App = () => {
             onDragStart={(event) => {
               event.dataTransfer.setData(
                 'storm-diagram-node',
-                JSON.stringify({ name: 'Blank' })
+                JSON.stringify({
+                  name: 'Production Target',
+                  type: 'target-node',
+                })
               )
             }}
           >
-            <div className="header">Blank Recipe</div>
+            <div className="header">Production Target</div>
+          </div>
+          <div
+            className="tray-item production-node"
+            draggable={true}
+            onDragStart={(event) => {
+              event.dataTransfer.setData(
+                'storm-diagram-node',
+                JSON.stringify({
+                  name: 'Assembler 1',
+                  type: 'assembler-node',
+                  craftingSpeed: 0.5,
+                })
+              )
+            }}
+          >
+            <div className="header">Assembler 1 (Blank)</div>
+          </div>
+          <div
+            className="tray-item production-node"
+            draggable={true}
+            onDragStart={(event) => {
+              event.dataTransfer.setData(
+                'storm-diagram-node',
+                JSON.stringify({
+                  name: 'Assembler 2',
+                  type: 'assembler-node',
+                  craftingSpeed: 0.75,
+                })
+              )
+            }}
+          >
+            <div className="header">Assembler 2 (Blank)</div>
+          </div>
+          <div
+            className="tray-item production-node"
+            draggable={true}
+            onDragStart={(event) => {
+              event.dataTransfer.setData(
+                'storm-diagram-node',
+                JSON.stringify({
+                  name: 'Assembler 3',
+                  type: 'assembler-node',
+                  craftingSpeed: 1.25,
+                })
+              )
+            }}
+          >
+            <div className="header">Assembler 3 (Blank)</div>
           </div>
           {/*
           <div className="tray-item production-node" draggable={true}>
@@ -258,12 +323,28 @@ const App = () => {
               // Not an event we know how to handle
               return null
             }
-            const node = new ProductionNode({
-              name: data.name,
-              duration: 1,
-              craftingSpeed: 1,
-              productivityBonus: 0,
-            })
+            let node
+            if (data.type === 'target-node') {
+              node = new ProductionNode({
+                name: null,
+                duration: 1,
+                craftingSpeed: 1,
+                productivityBonus: 0,
+                targetRate: 10,
+                targetRateUnits: 's',
+              })
+              node.addInput()
+            } else {
+              node = new ProductionNode({
+                name: data.name,
+                duration: 1,
+                craftingSpeed: data.craftingSpeed || 1,
+                productivityBonus: 0,
+                targetRate: null,
+              })
+              node.addInput()
+              node.addOutput()
+            }
             const point = engine.getRelativeMousePoint(event)
             point.x = point.x - nodeWidth / 2
             point.y = point.y - nodeHeight / 2
