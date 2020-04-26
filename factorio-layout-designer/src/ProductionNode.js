@@ -1,66 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { DefaultPortModel, NodeModel } from '@projectstorm/react-diagrams'
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core'
-import { PortWidget } from '@projectstorm/react-diagrams'
-import ReactModal from 'react-modal'
-import { useModal } from 'react-modal-hook'
 import uniqBy from 'lodash/uniqBy'
-
-function imageFor(x) {
-  if (x == null) return '/img/transparent.png'
-  return `/img/icons/${x}.png`
-}
+import PortIcon from './PortIcon'
 
 class ProductionPortModel extends DefaultPortModel {}
 
-const PortIcon = ({ engine, port, onChangeIcon }) => {
-  const icon = port.options.icon
-  const [showModal, hideModal] = useModal(() => (
-    <ReactModal
-      isOpen
-      className="icon-picker"
-      overlayClassName="icon-picker-overlay"
-      onRequestClose={hideModal}
-    >
-      <input placeholder="Search" />
-      <div>
-        {['iron-plate', 'copper-plate', 'copper-cable', 'green-circuit'].map(
-          (icon) => (
-            <button
-              key={icon}
-              onClick={() => {
-                hideModal()
-                onChangeIcon(icon)
-              }}
-            >
-              <img src={imageFor(icon)} height="20" width="20" alt={icon} />
-            </button>
-          )
-        )}
-      </div>
-    </ReactModal>
-  ))
-
-  return (
-    <div
-      onContextMenu={(e) => {
-        e.preventDefault()
-        e.stopPropagation()
-        showModal()
-      }}
-    >
-      <PortWidget engine={engine} port={port}>
-        <img
-          draggable={false}
-          src={imageFor(icon)}
-          width="20"
-          height="20"
-          alt={icon}
-        />
-      </PortWidget>
-    </div>
-  )
-}
 export const ProductionNodeWidget = ({ engine, node }) => {
   const [editable, setEditable] = useState(null)
 
