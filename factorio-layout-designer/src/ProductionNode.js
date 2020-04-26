@@ -1,9 +1,56 @@
 import React from 'react'
-import { DefaultPortModel, NodeModel } from '@projectstorm/react-diagrams'
+import {
+  DefaultPortModel,
+  DefaultLinkModel,
+  NodeModel,
+} from '@projectstorm/react-diagrams'
 import { AbstractReactFactory } from '@projectstorm/react-canvas-core'
 import ProductionNodeWidget from './ProductionNodeWidget'
 
-class ProductionPortModel extends DefaultPortModel {}
+export class ProductionLinkModel extends DefaultLinkModel {
+  setTargetPort(port) {
+    super.setTargetPort(port)
+    this.matchUpPorts(this.sourcePort, port)
+  }
+
+  setSourcePort(port) {
+    super.setSourcePort(port)
+    this.matchUpPorts(this.sourcePort, port)
+  }
+
+  matchUpPorts(a, b) {
+    if (a && b) {
+      if (a.icon) {
+        b.icon = a.icon
+      } else if (b.icon) {
+        a.icon = b.icon
+      }
+    }
+  }
+}
+
+export class ProductionPortModel extends DefaultPortModel {
+  canLinkToPort(port) {
+    if (super.canLinkToPort(port)) {
+      if (this.icon && port.icon) {
+        return this.icon === port.icon
+      }
+      return true
+    }
+  }
+
+  get icon() {
+    return this.options.icon
+  }
+
+  set icon(x) {
+    this.options.icon = x
+  }
+
+  createLinkModel(factory) {
+    return new ProductionLinkModel()
+  }
+}
 
 export class ProductionNodeFactory extends AbstractReactFactory {
   constructor() {

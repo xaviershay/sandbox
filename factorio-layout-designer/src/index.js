@@ -1,17 +1,15 @@
 import React from 'react'
 import * as ReactDOM from 'react-dom'
 import './index.css'
-import createEngine, {
-  DefaultPortModel,
-  DefaultLinkModel,
-  DiagramModel,
-} from '@projectstorm/react-diagrams'
+import createEngine, { DiagramModel } from '@projectstorm/react-diagrams'
 import { CanvasWidget } from '@projectstorm/react-canvas-core'
 import { ProductionNode, ProductionNodeFactory } from './ProductionNode'
 import { ModalProvider } from 'react-modal-hook'
 import ReactModal from 'react-modal'
 import DiagramState from './DiagramState'
 import ProductionSolver from './ProductionSolver'
+
+import { ProductionPortModel, ProductionLinkModel } from './ProductionNode'
 
 const engine = createEngine()
 engine.maxNumberPointsPerLink = 0
@@ -32,7 +30,7 @@ const node3 = new ProductionNode({
 })
 node3.setPosition(300, 50)
 node3.addPort(
-  new DefaultPortModel({
+  new ProductionPortModel({
     in: true,
     name: 'in-1',
     icon: 'copper-plate',
@@ -40,7 +38,7 @@ node3.addPort(
   })
 )
 node3.addPort(
-  new DefaultPortModel({
+  new ProductionPortModel({
     in: false,
     name: 'out-1',
     icon: 'copper-cable',
@@ -55,7 +53,7 @@ const node4 = new ProductionNode({
   productivityBonus: 0.0,
 })
 node4.addPort(
-  new DefaultPortModel({
+  new ProductionPortModel({
     in: true,
     name: 'in-1',
     icon: 'copper-cable',
@@ -63,7 +61,7 @@ node4.addPort(
   })
 )
 node4.addPort(
-  new DefaultPortModel({
+  new ProductionPortModel({
     in: true,
     name: 'in-2',
     icon: 'iron-plate',
@@ -71,7 +69,7 @@ node4.addPort(
   })
 )
 node4.addPort(
-  new DefaultPortModel({
+  new ProductionPortModel({
     in: false,
     name: 'out-1',
     icon: 'green-circuit',
@@ -88,7 +86,7 @@ const node5 = new ProductionNode({
 })
 node5.setPosition(50, 50)
 node5.addPort(
-  new DefaultPortModel({
+  new ProductionPortModel({
     in: false,
     name: 'out-1',
     icon: 'copper-plate',
@@ -104,7 +102,7 @@ const node6 = new ProductionNode({
 })
 node6.setPosition(400, 250)
 node6.addPort(
-  new DefaultPortModel({
+  new ProductionPortModel({
     in: false,
     name: 'out-1',
     icon: 'iron-plate',
@@ -123,19 +121,19 @@ const node7 = new ProductionNode({
 node7.setPosition(900, 100)
 node7.addInput()
 
-const link2 = new DefaultLinkModel()
+const link2 = new ProductionLinkModel()
 link2.setSourcePort(node3.getPort('out-1'))
 link2.setTargetPort(node4.getPort('in-1'))
 
-const link3 = new DefaultLinkModel()
+const link3 = new ProductionLinkModel()
 link3.setSourcePort(node5.getPort('out-1'))
 link3.setTargetPort(node3.getPort('in-1'))
 
-const link4 = new DefaultLinkModel()
+const link4 = new ProductionLinkModel()
 link4.setSourcePort(node6.getPort('out-1'))
 link4.setTargetPort(node4.getPort('in-2'))
 
-const link5 = new DefaultLinkModel()
+const link5 = new ProductionLinkModel()
 link5.setSourcePort(node4.getPort('out-1'))
 link5.setTargetPort(node7.getPort('in-1'))
 
