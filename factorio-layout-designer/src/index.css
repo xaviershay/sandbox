@@ -179,3 +179,46 @@ html, body, #application{
   width: 30px;
   font-size: 80%;
 }
+
+.icon-picker {
+  position: absolute;
+  width: 500px;
+  height: 400px;
+  top: 40px;
+  left:0px;
+  right:0px;
+  margin-left: auto;
+  margin-right: auto;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  outline: none;
+  background-color: #111111;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 4px;
+	border: solid 2px gray;
+}
+
+.icon-picker input {
+  padding: 0.25em;
+  border: none;
+  background-color: #333333;
+  color: white;
+  margin-bottom: 10px;
+}
+
+.icon-picker button {
+  background-color: rgba(0, 0, 0, 0.0);
+  border: none;
+  padding: 0.25em;
+}
+
+.icon-picker-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}

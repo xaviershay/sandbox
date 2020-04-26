@@ -16,7 +16,12 @@ class ProductionPortModel extends DefaultPortModel {}
 const PortIcon = ({ engine, port, onChangeIcon }) => {
   const icon = port.options.icon
   const [showModal, hideModal] = useModal(() => (
-    <ReactModal isOpen onRequestClose={hideModal}>
+    <ReactModal
+      isOpen
+      className="icon-picker"
+      overlayClassName="icon-picker-overlay"
+      onRequestClose={hideModal}
+    >
       <input placeholder="Search" />
       <div>
         {['iron-plate', 'copper-plate', 'copper-cable', 'green-circuit'].map(

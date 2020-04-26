@@ -260,7 +260,7 @@ class ProductionSolver {
     // Output ratios are increased by any productivity bonus attached to the
     // node.
     const productivity =
-      1 + (type == 'OUTPUT' ? node.options.productivityBonus : 0)
+      1 + (type === 'OUTPUT' ? node.options.productivityBonus : 0)
 
     let constraint = {
       range: [0, 0],

@@ -28,7 +28,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "precommit": "lint-staged",
-    "fmt": "prettier --write './**/*.js'"
+    "fmt": "prettier --write 'src/**/*.js'"
   },
   "eslintConfig": {
     "extends": "react-app"
