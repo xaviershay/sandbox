@@ -257,10 +257,15 @@ class ProductionSolver {
   addRatio(node, links, rate, type) {
     const nodeVar = this.nodeVar(node, 'ACTUAL')
 
+    // Output ratios are increased by any productivity bonus attached to the
+    // node.
+    const productivity =
+      1 + (type == 'OUTPUT' ? node.options.productivityBonus : 0)
+
     let constraint = {
       range: [0, 0],
       coefficients: {
-        [nodeVar.name]: rate,
+        [nodeVar.name]: rate * productivity,
       },
     }
 
@@ -383,7 +388,10 @@ const App = () => {
 
       const targetRate = node.options.targetRate
       if (targetRate > 0) {
-        solver.addTarget(node, targetRate)
+        solver.addTarget(
+          node,
+          targetRate / (1 + node.options.productivityBonus)
+        )
       }
 
       Object.values(node.ports).forEach((port) => {
@@ -421,7 +429,7 @@ const App = () => {
           // buffering.
           const v = solver.linkVar(link, 'INPUT')
           link.labels.length = 0
-          link.addLabel(jsonSolution.variables[v.name] + '/s')
+          link.addLabel(Math.round(jsonSolution.variables[v.name], 2) + '/s')
 
           // TODO: This might not work with serialize. See https://github.com/projectstorm/react-diagrams/issues/497
         })
