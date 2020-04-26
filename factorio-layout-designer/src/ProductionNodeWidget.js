@@ -223,61 +223,66 @@ const ProductionNodeWidget = ({ engine, node }) => {
           </div>
         </div>
         <div className="assembler">
-          {/*Time by Gagana from the Noun Project*/}
-          <img
-            src="/img/noun_Time_2027684.png"
-            width="20"
-            height="20"
-            alt="Recipe Duration"
-          />
-          {editableInput({ name: 'duration', format: (x) => `${x}s` })}
-          <br />
-          {/* Time by Alice Design from the Noun Project */}
-          <img
-            src="/img/noun_Time_2630876.png"
-            width="20"
-            height="20"
-            alt="Crafting Speed"
-          />
-          {editableInput({ name: 'craftingSpeed' })}
-          <br />
-          {/*Gear by Vincencio from the Noun Project*/}
-          <img
-            src="/img/noun_Gear_3267680.png"
-            width="20"
-            height="20"
-            alt="Productivity Bonus"
-          />
-          {editableInput({
-            name: 'productivityBonus',
-            format: (x) => (x > 0 ? `+${x * 100}%` : '-'),
-          })}
-
-          {/*Target by Edward Boatman from the Noun Project*/}
-          <br />
-          <img
-            src="/img/noun_Target_308.png"
-            width="20"
-            height="20"
-            alt="Target Rate"
-          />
-          {editableInput({
-            name: 'targetRate',
-            format: (x) => (x > 0 ? `${x}/s` : '-'),
-          })}
-          <br />
-          {/* counting by Magicon from the Noun Project */}
-          <img
-            src="/img/noun_counting_154887.png"
-            width="20"
-            height="20"
-            alt="Assemblers Required"
-          />
-          <span>
-            {((x) => (x > 0 ? Math.round(x * 100) / 100 : '-'))(
-              node.assemblersRequired
-            )}
-          </span>
+          <div className="row">
+            {/*Time by Gagana from the Noun Project*/}
+            <img
+              src="/img/noun_Time_2027684.png"
+              width="20"
+              height="20"
+              alt="Recipe Duration"
+            />
+            {editableInput({ name: 'duration', format: (x) => `${x}s` })}
+          </div>
+          <div className="row">
+            {/* Time by Alice Design from the Noun Project */}
+            <img
+              src="/img/noun_Time_2630876.png"
+              width="20"
+              height="20"
+              alt="Crafting Speed"
+            />
+            {editableInput({ name: 'craftingSpeed' })}
+          </div>
+          <div className="row">
+            {/*Gear by Vincencio from the Noun Project*/}
+            <img
+              src="/img/noun_Gear_3267680.png"
+              width="20"
+              height="20"
+              alt="Productivity Bonus"
+            />
+            {editableInput({
+              name: 'productivityBonus',
+              format: (x) => (x > 0 ? `+${x * 100}%` : '-'),
+            })}
+          </div>
+          <div className="row">
+            {/*Target by Edward Boatman from the Noun Project*/}
+            <img
+              src="/img/noun_Target_308.png"
+              width="20"
+              height="20"
+              alt="Target Rate"
+            />
+            {editableInput({
+              name: 'targetRate',
+              format: (x) => (x > 0 ? `${x}/s` : '-'),
+            })}
+          </div>
+          <div className="row">
+            {/* counting by Magicon from the Noun Project */}
+            <img
+              src="/img/noun_counting_154887.png"
+              width="20"
+              height="20"
+              alt="Assemblers Required"
+            />
+            <span>
+              {((x) => (x > 0 ? Math.round(x * 100) / 100 : '-'))(
+                node.assemblersRequired
+              )}
+            </span>
+          </div>
         </div>
         <div className="outputs">
           {node.outputPorts.map((p) => (
