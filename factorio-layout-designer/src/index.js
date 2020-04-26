@@ -425,6 +425,12 @@ const App = () => {
 
           // TODO: This might not work with serialize. See https://github.com/projectstorm/react-diagrams/issues/497
         })
+
+        nodes.forEach((node) => {
+          const v = solver.nodeVar(node, 'ACTUAL')
+
+          node.options.calculatedRate = jsonSolution.variables[v.name]
+        })
         engine.repaintCanvas()
       } else {
         console.log('no solution')

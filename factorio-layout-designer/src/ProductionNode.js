@@ -130,6 +130,12 @@ export const ProductionNodeWidget = ({ engine, node }) => {
   const forceUpdate = React.useReducer(() => ({}))[1]
 
   useEffect(() => {
+    return engine.registerListener({
+      repaintCanvas: forceUpdate,
+    }).deregister
+  }, [engine, forceUpdate])
+
+  useEffect(() => {
     node.setLocked(editable !== null)
   }, [node, editable])
 
@@ -319,6 +325,26 @@ export const ProductionNodeWidget = ({ engine, node }) => {
             name: 'targetRate',
             format: (x) => (x > 0 ? `${x}/s` : '-'),
           })}
+          <br />
+          {/* counting by Magicon from the Noun Project */}
+          <img
+            src="/img/noun_counting_154887.png"
+            width="20"
+            height="20"
+            alt="Assemblers Required"
+          />
+          {/*
+          // Copied from Foreman, TODO: machines have to wait for a new tick before
+          // starting a new item, so round up to nearest tick (assume 60fps)
+            // */}
+          <span>
+            {((x) => (x > 0 ? x : '-'))(
+              Math.ceil(
+                (node.options.duration / node.options.craftingSpeed) *
+                  node.options.calculatedRate
+              )
+            )}
+          </span>
         </div>
         <div className="outputs">
           {outputPorts.map((p) => (
