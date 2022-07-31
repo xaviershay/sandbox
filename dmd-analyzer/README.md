@@ -4,7 +4,8 @@ DMD Analyzer
 Analyze PIN2DMD dump files (such as can be generated from
 https://playfield.dev) and extract game information from them.
 
-Currently just an assorted selection of tools that don't do much.
+Currently just an assorted selection of tools that don't do much, but it can
+extract single player scores from Demolition Man which is pretty neat.
 
 Motivation for the project is to one day analyze a live stream from a game to
 automatically capture statistics, in the spirit of
