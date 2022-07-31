@@ -10,18 +10,13 @@ class Image
   end
 
   def to_raw
-    bit_index = 0
-    bits.raw.chars.map {|y|
-      y.unpack("B*").map {|bs|
-        bs.chars.map do |b|
-          if in_focus?(bit_index)
-            b
-          else
-            "0"
-          end.tap {|_| bit_index += 1 }
-        end.join
-      }.map(&:reverse).pack("B*")
+    masked_bits.raw.chars.map {|y|
+      y.unpack("B*").map(&:reverse).pack("B*")
     }.join
+  end
+
+  def mask_image
+    Image.new(mask, width: width, height: height)
   end
 
   def initialize(bits, width:, height:)
@@ -29,10 +24,17 @@ class Image
     @width = width
     @height = height
     @focus = [0, 0, width, height]
+    @mask = Bitwise.new("\xFF" * (width*height/8))
   end
 
   def mask!(x, y, w, h)
     @focus = [x, y, w, h]
+    @mask = Bitwise.new("\x00" * (width*height/8))
+    (x...x+w).each do |x_coord|
+      (y...y+h).each do |y_coord|
+        @mask.set_at(y_coord * width + x_coord)
+      end
+    end
   end
 
   def add(image)
@@ -44,7 +46,7 @@ class Image
     unpacked = Array.new(width*height)
     (0...width*height).each do |bit_index|
       unpacked[bit_index] =
-          in_focus?(bit_index) && bits.set_at?(bit_index) ? 1 : 0
+          masked_bits.set_at?(bit_index) ? 1 : 0
     end
 
     case style
@@ -63,19 +65,11 @@ class Image
 
   protected
 
-  attr_reader :bits, :width, :height, :focus
+  attr_reader :bits, :width, :height, :focus, :mask
 
   private
 
-  def in_focus?(bit_index)
-    x = bit_index % width
-    y = bit_index / width
-
-    x1 = focus[0]
-    y1 = focus[1]
-    x2 = x1 + focus[2]
-    y2 = y1 + focus[3]
-
-    x >= x1 && x < x2 && y >= y1 && y < y2
+  def masked_bits
+    bits & mask
   end
 end

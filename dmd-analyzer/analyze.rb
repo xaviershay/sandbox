@@ -114,15 +114,16 @@ while !data.empty? && i < 400
 
   image = frames.reduce {|x, y| x.add(y) }
 
+  puts "==== MASK"
   image.mask!(28, 27, 18, 5)
   #image.mask!(0, 0, 128, 10)
   #image.mask!(0, 0, 64, 25)
   puts "---------"
-  puts image.formatted(style: :quadrant)
+  puts image.mask_image.formatted(style: :quadrant)
   new_i = Image.from_raw(image.to_raw)
   File.write("masks/dm/ball.raw", image.to_raw)
   testdata = File.read("masks/dm/ball.raw", encoding: 'BINARY')
-  puts "---"
+  #puts "---"
   puts Image.from_raw(testdata).formatted
   next
 
