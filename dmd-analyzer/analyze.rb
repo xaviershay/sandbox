@@ -1,4 +1,6 @@
 require 'bitwise'
+$LOAD_PATH.unshift("lib")
+require 'image'
 
 name = "data/test-dump-1.raw"
 
@@ -82,74 +84,6 @@ raise "unexpected height/width" unless [height, width] == [128, 32]
 headerLength = 8
 data = data[headerLength-1..-1]
 
-class Image
-  def self.from_raw(data, width: 128, height: 32)
-    # For some reason each byte is flipped, possible something in bitwise
-    # library, or maybe just a quirk of output format.
-    new(
-      Bitwise.new(data.chars.map {|y| y.unpack("B*").map(&:reverse).pack("B*") }.join),
-      width: width,
-      height: height
-    )
-  end
-
-  def to_raw
-    bit_index = 0
-    bits.raw.chars.map {|y|
-      y.unpack("B*").map(&:reverse).map {|bs|
-        bs.chars.map do |b|
-          if in_focus?(bit_index)
-            b
-          else
-            "0"
-          end.tap {|_| bit_index += 1 }
-        end.join
-      }.pack("B*")
-    }.join.tap {|_| puts bit_index }
-  end
-
-  def initialize(bits, width:, height:)
-    @bits = bits
-    @width = width
-    @height = height
-    @focus = [0, 0, width, height]
-  end
-
-  def mask!(x, y, w, h)
-    @focus = [x, y, w, h]
-  end
-
-  def add(image)
-    raise "dimensions don't match" unless image.width == self.width && image.height == self.height
-    Image.new(self.bits | image.bits, height: height, width: width)
-  end
-
-  def formatted(style: :quadrant)
-    case style
-    when :quadrant
-      unpacked = Array.new(width*height).fill(0)
-      (0...width*height).each do |bit_index|
-        unpacked[bit_index] = 1 if in_focus?(bit_index) && bits.set_at?(bit_index)
-      end
-      to_quadrants(unpacked.each_slice(128)).map {|r| r.map {|x| quadrant_to_unicode(x) }.join }
-    else
-      raise "unimplemented style: #{style}"
-    end
-  end
-
-  protected
-
-  attr_reader :bits, :width, :height, :focus
-
-  private
-
-  def in_focus?(bit_index)
-    x = bit_index % width
-    y = bit_index / width
-
-    x >= focus[0] && x < focus[0] + focus[2] && y >= focus[1] && y < focus[1] + focus[3]
-  end
-end
 
 i = 0
 skip = 399
@@ -180,11 +114,14 @@ while !data.empty? && i < 400
 
   image = frames.reduce {|x, y| x.add(y) }
 
-  image.mask!(26, 26, 20, 6)
+  image.mask!(28, 27, 2, 5)
   #image.mask!(0, 0, 128, 10)
   #image.mask!(0, 0, 64, 25)
-  puts image.formatted
-  puts Image.from_raw(image.to_raw).formatted
+  puts "---------"
+  puts image.formatted(style: :quadrant)
+  new_i = Image.from_raw(image.to_raw)
+  new_i.mask!(28, 27, 2, 5)
+  puts new_i.formatted(style: :quadrant)
   next
 
   frames = frame.each_slice(128*32/8).map {|x|
