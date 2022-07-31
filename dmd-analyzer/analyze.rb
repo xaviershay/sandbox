@@ -94,7 +94,18 @@ class Image
   end
 
   def to_raw
-    bits.raw.chars.map {|y| y.unpack("B*").map(&:reverse).pack("B*") }.join
+    bit_index = 0
+    bits.raw.chars.map {|y|
+      y.unpack("B*").map(&:reverse).map {|bs|
+        bs.chars.map do |b|
+          if in_focus?(bit_index)
+            b
+          else
+            "0"
+          end.tap {|_| bit_index += 1 }
+        end.join
+      }.pack("B*")
+    }.join.tap {|_| puts bit_index }
   end
 
   def initialize(bits, width:, height:)
@@ -169,8 +180,11 @@ while !data.empty? && i < 400
 
   image = frames.reduce {|x, y| x.add(y) }
 
-  image.mask!(26, 27, 20, 5)
+  image.mask!(26, 26, 20, 6)
+  #image.mask!(0, 0, 128, 10)
+  #image.mask!(0, 0, 64, 25)
   puts image.formatted
+  puts Image.from_raw(image.to_raw).formatted
   next
 
   frames = frame.each_slice(128*32/8).map {|x|
