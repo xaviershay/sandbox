@@ -4,7 +4,6 @@ name = "data/test-dump-1.raw"
 
 data = File.read(name, encoding: 'BINARY')
 
-
 input = [
   [1, 2, 3, 4],
   [5, 6, 7, 8],
@@ -83,8 +82,69 @@ raise "unexpected height/width" unless [height, width] == [128, 32]
 headerLength = 8
 data = data[headerLength-1..-1]
 
+class Image
+  def self.from_raw(data, width: 128, height: 32)
+    # For some reason each byte is flipped, possible something in bitwise
+    # library, or maybe just a quirk of output format.
+    new(
+      Bitwise.new(data.chars.map {|y| y.unpack("B*").map(&:reverse).pack("B*") }.join),
+      width: width,
+      height: height
+    )
+  end
+
+  def to_raw
+    bits.raw.chars.map {|y| y.unpack("B*").map(&:reverse).pack("B*") }.join
+  end
+
+  def initialize(bits, width:, height:)
+    @bits = bits
+    @width = width
+    @height = height
+    @focus = [0, 0, width, height]
+  end
+
+  def mask!(x, y, w, h)
+    @focus = [x, y, w, h]
+  end
+
+  def add(image)
+    raise "dimensions don't match" unless image.width == self.width && image.height == self.height
+    Image.new(self.bits | image.bits, height: height, width: width)
+  end
+
+  def formatted(style: :quadrant)
+    case style
+    when :quadrant
+      unpacked = Array.new(width*height).fill(0)
+      (0...width*height).each do |bit_index|
+        unpacked[bit_index] = 1 if in_focus?(bit_index) && bits.set_at?(bit_index)
+      end
+      to_quadrants(unpacked.each_slice(128)).map {|r| r.map {|x| quadrant_to_unicode(x) }.join }
+    else
+      raise "unimplemented style: #{style}"
+    end
+  end
+
+  protected
+
+  attr_reader :bits, :width, :height, :focus
+
+  private
+
+  def in_focus?(bit_index)
+    x = bit_index % width
+    y = bit_index / width
+
+    x >= focus[0] && x < focus[0] + focus[2] && y >= focus[1] && y < focus[1] + focus[3]
+  end
+end
+
 i = 0
-while !data.empty? && i < 100
+skip = 399
+
+while !data.empty? && i < 400
+  i += 1
   shaded_frame = []
 
   uptime = data.unpack("Q<")
@@ -93,7 +153,25 @@ while !data.empty? && i < 100
   frameBytes = 128 * 32 / 8
 
   data = data[4..-1]
-  frame = data[0...128*32 / 8 * 3].chars
+  frame = data[0...128*32 / 8 * 3]
+  data = data[1536..-1]
+  next unless i > skip
+
+  frames = frame.chars.each_slice(128*32/8).map(&:join).map {|x|
+    Image.from_raw(x).tap do |image|
+      unless image.to_raw == x
+        p x
+        p image.to_raw
+        raise "serder doesn't match"
+      end
+    end
+  }
+
+  image = frames.reduce {|x, y| x.add(y) }
+
+  image.mask!(26, 27, 20, 5)
+  puts image.formatted
+  next
 
   frames = frame.each_slice(128*32/8).map {|x|
     # For some reason each byte is flipped, possible something in bitwise
@@ -116,6 +194,4 @@ while !data.empty? && i < 100
   puts to_quadrants(shaded_frame.each_slice(128)).map {|r| r.map {|x| quadrant_to_unicode(x) }.join }
   # puts formatted
 
-  data = data[1536..-1]
-  i += 1
 end
