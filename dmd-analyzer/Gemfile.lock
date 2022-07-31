@@ -1,0 +1,13 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    bitwise (0.6.0)
+
+PLATFORMS
+  x86_64-linux
+
+DEPENDENCIES
+  bitwise
+
+BUNDLED WITH
+   2.2.30
