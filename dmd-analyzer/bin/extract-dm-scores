@@ -19,7 +19,14 @@ $logger.info("Frames: #{dump.frames.length}")
 filename = "masks/dm/ball.raw"
 mask = Marshal.load(File.read(filename))
 
-dump.frames.reverse.each.with_index do |f, i|
+templates = (0..9).to_a.map do |n|
+  [n, Marshal.load(File.read("masks/dm/#{n}.raw"))]
+end
+separator = Marshal.load(File.read("masks/dm/separator.raw"))
+
+previous_total = nil
+
+dump.frames.each.with_index do |f, i|
   image = f.monochrome_image
   if image.matches_mask?(mask)
     image.mask!(0, 0, 128, 23) # extract just the numbers
@@ -37,15 +44,33 @@ dump.frames.reverse.each.with_index do |f, i|
       end
     end
 
+    digits = []
+    success = true
     bounds.each do |bound|
       image.mask!(bound[0], 0, bound[1] - bound[0], 23)
       number = image.fit_to_content
-      puts number.formatted
+      next if separator == number
+      t = templates.detect {|n, template|
+        template == number
+      }
+
+      unless t
+        success = false
+        break
+      end
+
+      digits.push t[0]
     end
 
-    $logger.info(
-      "Frame #{i}, timestamp #{f.timestamp}:\n" + image.formatted
-    )
-    exit
+    if success
+      total = 0
+      digits.reverse.each.with_index.each do |d, i|
+        total += d * (10 ** i)
+      end
+      if total != previous_total
+        $logger.info "Extracted new score #{i}/#{f.timestamp / 1000000.0}: #{total}"
+        previous_total = total
+      end
+    end
   end
 end

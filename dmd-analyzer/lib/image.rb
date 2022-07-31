@@ -29,6 +29,10 @@ class Image
     @mask = Bitwise.new("\xFF" * (width*height/8 + 1))
   end
 
+  def clear_mask!
+    @mask = Bitwise.new("\xFF" * (width*height/8 + 1))
+  end
+
   def mask!(x, y, w, h)
     @focus = [x, y, w, h]
     @mask = Bitwise.new("\x00" * (width*height/8 + 1))
