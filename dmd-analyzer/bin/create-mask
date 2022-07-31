@@ -43,19 +43,16 @@ $logger.info("Loaded #{options.fetch(:input_file)}")
 
 image = dump.frames.fetch(frame).monochrome_image
 
-$logger.info "Extracted frame #{frame}:\n" + image.formatted.join("\n")
+$logger.info "Extracted frame #{frame}:\n" + image.formatted
 
 mask = options.fetch(:mask)
 image.mask!(*mask)
 
-$logger.info "Mask #{mask.inspect}:\n" + image.mask_image.formatted.join("\n")
-$logger.info "Masked image:\n" + image.formatted.join("\n")
+$logger.info "Mask #{mask.inspect}:\n" + image.mask_image.formatted
+$logger.info "Masked image:\n" + image.formatted
 
 if output_file = options[:output_file]
   File.write(output_file, Marshal.dump(image))
 else
   $logger.info "No output file specified, skipping dump."
 end
-
-# p options
-# p ARGV

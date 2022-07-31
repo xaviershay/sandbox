@@ -1,0 +1,51 @@
+#!/usr/bin/env ruby
+
+require 'logger'
+
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), "..", "lib")
+
+Signal.trap("SIGPIPE", "SYSTEM_DEFAULT")
+require 'pin2dmd_dump'
+
+filename = ARGV.shift
+
+$logger = Logger.new(STDOUT)
+$logger.info("Loading #{filename}")
+dump = Pin2DmdDump.from_file(filename)
+$logger.info("Loaded #{filename}")
+
+$logger.info("Frames: #{dump.frames.length}")
+
+filename = "masks/dm/ball.raw"
+mask = Marshal.load(File.read(filename))
+
+dump.frames.reverse.each.with_index do |f, i|
+  image = f.monochrome_image
+  if image.matches_mask?(mask)
+    image.mask!(0, 0, 128, 23) # extract just the numbers
+
+    region_start = nil
+    bounds = []
+
+    (0...image.width).each do |x|
+      empty = image.region_empty?(x, 0, 1, 23)
+      if !region_start && !empty
+        region_start = x
+      elsif region_start && empty
+        bounds << [region_start, x]
+        region_start = nil
+      end
+    end
+
+    bounds.each do |bound|
+      image.mask!(bound[0], 0, bound[1] - bound[0], 23)
+      number = image.fit_to_content
+      puts number.formatted
+    end
+
+    $logger.info(
+      "Frame #{i}, timestamp #{f.timestamp}:\n" + image.formatted
+    )
+    exit
+  end
+end

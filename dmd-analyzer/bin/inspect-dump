@@ -18,6 +18,6 @@ $logger.info("Frames: #{dump.frames.length}")
 
 dump.frames.each.with_index do |f, i|
   $logger.info(
-    "Frame #{i}, timestamp #{f.timestamp}:\n" + f.monochrome_image.formatted.join("\n")
+    "Frame #{i}, timestamp #{f.timestamp}:\n" + f.monochrome_image.formatted
   )
 end
