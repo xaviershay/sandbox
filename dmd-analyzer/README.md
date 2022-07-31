@@ -2,9 +2,9 @@ DMD Analyzer
 ============
 
 Analyze PIN2DMD dump files (such as can be generated from
-https://playfield.dev) an extract game information from them.
+https://playfield.dev) and extract game information from them.
 
-Current just a selection of tools.
+Currently just an assorted selection of tools that don't do much.
 
 Motivation for the project is to one day analyze a live stream from a game to
 automatically capture statistics, in the spirit of
@@ -21,7 +21,6 @@ by clicking the `DMD DUMP` button in the top right of the UI.
     > bin/inspect-dump data/test-dump-1.raw | head -n 20
     I, [2022-07-31T13:20:08.073870 #29891]  INFO -- : Loading data/test-dump-1.raw
     I, [2022-07-31T13:20:08.578854 #29891]  INFO -- : Loaded data/test-dump-1.raw
-    I, [2022-07-31T13:20:08.578930 #29891]  INFO -- : Dimensions: x
     I, [2022-07-31T13:20:08.578941 #29891]  INFO -- : Frames: 437
     I, [2022-07-31T13:20:08.613364 #29891]  INFO -- : Frame 0, timestamp 2294275:
               ▄▄

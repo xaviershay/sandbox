@@ -22,16 +22,16 @@ class Pin2DmdDump
     # const HEADER = [
     #   // RAW as ascii
     #   82, 65, 87,
-    # 
+    #
     #   // VERSION 1
     #   0, 1,
-    # 
+    #
     #   // DMD WIDTH in pixels
     #   128,
-    # 
+    #
     #   // DMD HEIGHT in pixels
     #   32,
-    # 
+    #
     #   // FRAMES PER IMAGE, always 3 for WPC devices
     #   3,
     # ];
@@ -60,7 +60,7 @@ class Pin2DmdDump
       # is referred to as a frame. (I did this because for our usages that
       # naming makes sense and it's particularly confusing for a user with the
       # original naming.)
-      # 
+      #
       # Intensity is typically calculated by counting how many images a pixel
       # is on for throughout the frame: 0=off, 1=33%, 2=66%, 3=100%
       # We don't care about that here though, and instead generally flatten the
