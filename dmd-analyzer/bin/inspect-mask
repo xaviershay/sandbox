@@ -1,5 +1,8 @@
 #!/usr/bin/env ruby
 
+require 'logger'
+Signal.trap("SIGPIPE", "SYSTEM_DEFAULT")
+
 $LOAD_PATH.unshift File.join(File.dirname(__FILE__), "..", "lib")
 
 require 'image'
@@ -8,8 +11,6 @@ filename = ARGV.shift
 
 i = Marshal.load(File.read(filename))
 
-puts "Mask:"
-puts i.mask_image.formatted
-puts
-puts "Image:"
-puts i.formatted
+$logger = Logger.new(STDOUT)
+$logger.info "Mask:\n" + i.mask_image.formatted
+$logger.info "Image:\n" + i.formatted

@@ -111,41 +111,40 @@ analysis later.
 ### Inspect mask
 
     > bin/inspect-mask masks/dm/ball.raw
-    Mask:
-
-
-
-
-
-
-
-
-
-
-
-
-
-                  ▄▄▄▄▄▄▄▄▄
-                  █████████
-                  █████████
-
-    Image:
-
-
-
-
-
-
-
-
-
-
-
-
-
-                  ▄▖ ▄ ▖ ▖
-                  ▙▞▐▄▌▌ ▌
-                  ▙▞▐ ▌▙▖▙▖
+    I, [2022-07-31T15:48:17.456906 #40472]  INFO -- : Mask:
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                  ▄▄▄▄▄▄▄▄▄                                         
+                  █████████                                         
+                  █████████                                         
+    I, [2022-07-31T15:48:17.484671 #40472]  INFO -- : Image:
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                                                                    
+                  ▄▖ ▄ ▖ ▖                                          
+                  ▙▞▐▄▌▌ ▌                                          
+                  ▙▞▐ ▌▙▖▙▖                                         
 
 ### Generate digit templates
 
@@ -178,6 +177,6 @@ Need to repeat this for all digits, finding appropriate frames.
 Development
 -----------
 
-We have the initial stirrings of a test suite:
+We have the initial stirrings of a test suite.
 
     rspec
