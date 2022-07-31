@@ -4,6 +4,47 @@ name = "data/test-dump-1.raw"
 
 data = File.read(name, encoding: 'BINARY')
 
+
+input = [
+  [1, 2, 3, 4],
+  [5, 6, 7, 8],
+  [9, 10, 11, 12],
+  [13, 14, 15, 16]
+]
+
+output = [
+  [ [1, 2, 5, 6], [3, 4, 7, 8] ],
+  [ [9, 10, 13, 14], [13, 14, 15, 16] ]
+]
+def to_quadrants(input)
+  input.each_slice(2).map do |two_rows|
+    a = two_rows.map {|r| r.each_slice(2).to_a }
+    a[0].zip(a[1]).map(&:flatten)
+  end
+end
+
+def quadrant_to_unicode(quadrant)
+  q = quadrant.map {|x| x == 0 ? 0 : 1 }
+  {
+    [0, 0, 0, 0] => " ",
+    [1, 1, 1, 1] => "█",
+    [1, 0, 0, 0] => "▘",
+    [0, 1, 0, 0] => "▝",
+    [0, 0, 1, 0] => "▖",
+    [0, 0, 0, 1] => "▗",
+    [1, 1, 0, 0] => "▀",
+    [0, 0, 1, 1] => "▄",
+    [1, 0, 1, 0] => "▌",
+    [0, 1, 0, 1] => "▐",
+    [1, 0, 0, 1] => "▚",
+    [0, 1, 1, 0] => "▞",
+    [1, 1, 1, 0] => "▛",
+    [1, 1, 0, 1] => "▜",
+    [1, 0, 1, 1] => "▙",
+    [0, 1, 1, 1] => "▟"
+  }.fetch(q)
+end
+
 # Format is https://github.com/neophob/wpc-emu/blob/a8de4bc8bc92689930a36935cb7fb9326c920327/client/scripts/lib/pin2DmdExport.js
 
 puts data[0..128].inspect
@@ -43,33 +84,38 @@ headerLength = 8
 data = data[headerLength-1..-1]
 
 i = 0
-while !data.empty? && i < 1000
-  shadedFrame = []
+while !data.empty? && i < 100
+  shaded_frame = []
 
   uptime = data.unpack("Q<")
-  puts uptime.inspect
+  # puts uptime.inspect
 
   frameBytes = 128 * 32 / 8
 
   data = data[4..-1]
   frame = data[0...128*32 / 8 * 3].chars
-  puts frame.length
 
-  frames = frame.each_slice(128*32/8).map {|x| Bitwise.new(x.join) }
+  frames = frame.each_slice(128*32/8).map {|x|
+    # For some reason each byte is flipped, possible something in bitwise
+    # library, or maybe just a quirk of output format.
+    Bitwise.new(x.map {|y| y.unpack("B*").map(&:reverse).pack("B*") }.join)
+  }
 
-  (0...128*32).each do |bitIndex|
+  (0...128*32).each do |bit_index|
     intensity = 0
     frames.each do |f|
-      intensity += 1 if f.set_at?(bitIndex)
+      intensity += 1 if f.set_at?(bit_index)
     end
-    shadedFrame[bitIndex] = intensity
+    shaded_frame[bit_index] = intensity
   end
 
-  formatted = shadedFrame.each_slice(128).map do |row|
-    row.each_slice(8).map(&:reverse).flatten.map {|x| [" ", "░", "▒", "▓"].fetch(x) }.join
+  formatted = shaded_frame.each_slice(128).map do |row|
+    row.map {|x| [" ", "░", "▒", "▓"].fetch(x) }.join
   end
-  puts formatted
+
+  puts to_quadrants(shaded_frame.each_slice(128)).map {|r| r.map {|x| quadrant_to_unicode(x) }.join }
+  # puts formatted
+
   data = data[1536..-1]
   i += 1
 end
-puts (128 * 32) / 8 * 3
