@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+
+require 'logger'
+require 'optparse'
+
+$LOAD_PATH.unshift File.join(File.dirname(__FILE__), "..", "lib")
+
+require 'pin2dmd_dump'
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: example.rb [options]"
+
+  opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
+    options[:verbose] = v
+  end
+
+  opts.on("-o FILE", "Output file") do |x|
+    options[:output_file] = x
+  end
+
+  opts.on("-i FILE", "Input file") do |x|
+    options[:input_file] = x
+  end
+
+  opts.on("-f FRAME", "--frame FRAME", "Frame number to use from input") do |x|
+    options[:frame] = x.to_i
+  end
+
+  opts.on("-m MASK", "--mask MASK", "Mask in x,y,w,h format") do |x|
+    options[:mask] = x.split(',').map(&:to_i)
+  end
+end.parse!
+
+verbose = options[:verbose]
+frame = options.fetch(:frame)
+
+$logger = Logger.new(verbose ? STDOUT : IO::NULL)
+
+$logger.info("Loading #{options.fetch(:input_file)}")
+dump = Pin2DmdDump.from_file(options.fetch(:input_file))
+$logger.info("Loaded #{options.fetch(:input_file)}")
+
+image = dump.frames.fetch(frame).monochrome_image
+
+$logger.info "Extracted frame #{frame}:\n" + image.formatted.join("\n")
+
+mask = options.fetch(:mask)
+image.mask!(*mask)
+
+$logger.info "Mask #{mask.inspect}:\n" + image.mask_image.formatted.join("\n")
+$logger.info "Masked image:\n" + image.formatted.join("\n")
+
+if output_file = options[:output_file]
+  File.write(output_file, Marshal.dump(image))
+else
+  $logger.info "No output file specified, skipping dump."
+end
+
+# p options
+# p ARGV

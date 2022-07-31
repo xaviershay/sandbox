@@ -1,3 +1,5 @@
+require 'bitwise'
+
 class Image
   def self.from_raw(data, width: 128, height: 32)
     # For some reason each byte is flipped, possible something in bitwise
@@ -55,6 +57,7 @@ class Image
         r.map {|x| quadrant_to_unicode(x) }.join
       }
     when :shaded
+      # TODO: This doesn't make sense on Image, should be on Frame
       unpacked.each_slice(128).map do |row|
         row.map {|x| [" ", "░", "▒", "▓"].fetch(x) }.join
       end
@@ -71,5 +74,46 @@ class Image
 
   def masked_bits
     bits & mask
+  end
+
+  # input = [
+  #   [1, 2, 3, 4],
+  #   [5, 6, 7, 8],
+  #   [9, 10, 11, 12],
+  #   [13, 14, 15, 16]
+  # ]
+
+  # output = [
+  #   [ [1, 2, 5, 6], [3, 4, 7, 8] ],
+  #   [ [9, 10, 13, 14], [13, 14, 15, 16] ]
+  # ]
+
+  def to_quadrants(input)
+    input.each_slice(2).map do |two_rows|
+      a = two_rows.map {|r| r.each_slice(2).to_a }
+      a[0].zip(a[1]).map(&:flatten)
+    end
+  end
+
+  def quadrant_to_unicode(quadrant)
+    q = quadrant.map {|x| x == 0 ? 0 : 1 }
+    {
+      [0, 0, 0, 0] => " ",
+      [1, 1, 1, 1] => "█",
+      [1, 0, 0, 0] => "▘",
+      [0, 1, 0, 0] => "▝",
+      [0, 0, 1, 0] => "▖",
+      [0, 0, 0, 1] => "▗",
+      [1, 1, 0, 0] => "▀",
+      [0, 0, 1, 1] => "▄",
+      [1, 0, 1, 0] => "▌",
+      [0, 1, 0, 1] => "▐",
+      [1, 0, 0, 1] => "▚",
+      [0, 1, 1, 0] => "▞",
+      [1, 1, 1, 0] => "▛",
+      [1, 1, 0, 1] => "▜",
+      [1, 0, 1, 1] => "▙",
+      [0, 1, 1, 1] => "▟"
+    }.fetch(q)
   end
 end
