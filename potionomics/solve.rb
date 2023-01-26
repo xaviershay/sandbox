@@ -2,6 +2,47 @@ require 'algorithms'
 require 'set'
 require 'csv'
 
+Stop = Data.define(:label, :min_value) do
+  def inspect
+    "<Stop '#{label}' #{min_value}>"
+  end
+end
+
+$stops = [
+  Stop.new("Minor 0", 0),
+  Stop.new("Minor 1", 10),
+  Stop.new("Minor 2", 20),
+  Stop.new("Minor 3", 30),
+  Stop.new("Minor 4", 40),
+  Stop.new("Minor 5", 50),
+  Stop.new("Common 0", 60),
+  Stop.new("Common 1", 75),
+  Stop.new("Common 2", 90),
+  Stop.new("Common 3", 105),
+  Stop.new("Common 4", 120),
+  Stop.new("Common 5", 135),
+  Stop.new("Common 5", 135),
+  Stop.new("Greater 0", 150),
+  Stop.new("Greater 1", 150 + 23 * 1),
+  Stop.new("Greater 3", 150 + 23 * 2),
+  Stop.new("Greater 4", 150 + 23 * 3),
+  Stop.new("Greater 5", 150 + 23 * 4),
+  Stop.new("Grand 0", 290),
+  Stop.new("Grand 1", 290 + 30 * 1),
+  Stop.new("Grand 2", 290 + 30 * 2),
+  Stop.new("Grand 3", 290 + 30 * 3),
+  Stop.new("Grand 4", 290 + 30 * 4),
+  Stop.new("Grand 5", 290 + 30 * 5),
+]
+
+def stop_index(value)
+  $stops.take_while {|stop| stop.min_value <= value }.length - 1
+end
+
+def stop_for(value)
+  $stops.take_while {|stop| stop.min_value <= value }.last
+end
+
 Migamins = Data.define(:r, :g, :y, :b, :p) do
   def to_a
     [r, g, y, b, p]
@@ -55,17 +96,31 @@ Mix = Data.define(:ingredients) do
   end
 
   def value(target_ratios)
-    err = ratios.zip(target_ratios).map {|x, y| (x - y).abs }.sum
+    e = err(target_ratios)
+    stop_modifier =
+      if e > 0.1
+        -1000
+      elsif e < 0.0000000001
+        1
+      else
+        2
+      end
 
-    modifier = if err > 0.1
-                 0
-               elsif err < 0.0000000001
-                 1.5
-               else
-                 1
-               end
+    stop = stop_index(count) + stop_modifier
 
-    count * modifier
+    if stop >= 0
+      ($stops[stop] || $stops.last).min_value
+    else
+      count * 0.1
+    end
+  end
+
+  def err(target_ratios)
+    ratios.zip(target_ratios).map {|x, y| (x - y).abs }.sum
+  end
+
+  def valid?(target_ratios)
+    err(target_ratios) <= 0.1
   end
 
   def ratios
@@ -127,7 +182,8 @@ ingredients.each do |i, n|
   seen.add(mix)
 end
 
-puts "Solving for #{c} with #{target_ratios}"
+puts "Solving for #{c}\n  with #{target_ratios}"
+puts
 max_value = 0
 while mix = heap.pop
   # puts "EVAL: #{mix} #{mix.summed_ingredients.inspect}"
@@ -142,8 +198,15 @@ while mix = heap.pop
 
   if new_mixes.empty?
     v = mix.value(target_ratios)
-    if v > max_value
-      puts "CANDIDATE: #{mix.value(target_ratios)} #{mix.count} #{mix.ingredient_count} #{mix}"
+    if v > max_value && mix.valid?(target_ratios)
+      stop = stop_for(mix.value(target_ratios))
+      puts "CANDIDATE: Value=#{mix.count} Ingredients=#{mix.ingredient_count} stop=#{stop.label}"
+      puts "  #{mix.summed_ingredients.inspect}"
+      puts
+      mix.ingredients.each do |k, v|
+        puts "  #{v} * #{k.inspect}"
+      end
+      puts
       max_value = v
     end
   end
