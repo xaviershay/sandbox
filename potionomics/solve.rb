@@ -54,11 +54,15 @@ Mix = Data.define(:ingredients) do
   end
 
   def value(target_ratios)
-    modifier = if ratios == target_ratios
-      1.2 
-    else
-      1
-    end
+    err = ratios.zip(target_ratios).map {|x, y| (x - y).abs }.sum
+
+    modifier = if err > 0.1
+                 0
+               elsif err < 0.0000000001
+                 1.5
+               else
+                 1
+               end
 
     count * modifier
   end
@@ -86,13 +90,26 @@ ingredients = [
   Migamins.new(0,6,0,0,0),
   Migamins.new(0,4,0,0,0),
   Migamins.new(0,0,0,18,0),
-].map {|x| [x, 100] }.to_h
+]
+ingredients = [
+  Migamins.new(6,0,0,0,0),
+  Migamins.new(4,0,0,0,0),
+  Migamins.new(24,0,0,0,0),
+  Migamins.new(30,0,0,0,0),
+  Migamins.new(18,0,0,6,0),
+  Migamins.new(0,0,0,40,0),
+  Migamins.new(0,0,0,18,0),
+  Migamins.new(0,0,0,12,0),
+]
 
-c = Cauldron.new(35, 16)
+ingredients = ingredients.map {|x| [x, 100] }.to_h
+
+c = Cauldron.new(225, 8)
 
 heap = Containers::MaxHeap.new
 seen = Set.new
 target_ratios = [0.5, 0.5, 0, 0, 0]
+target_ratios = [0.5, 0.0, 0, 0.5, 0]
 
 ingredients.each do |i, n|
   mix = Mix.singleton(i)
