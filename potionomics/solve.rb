@@ -1,5 +1,7 @@
 require 'algorithms'
 require 'set'
+require 'csv'
+
 
 Migamins = Data.define(:r, :g, :y, :b, :p) do
   def to_a
@@ -96,20 +98,31 @@ ingredients = [
   Migamins.new(4,0,0,0,0),
   Migamins.new(24,0,0,0,0),
   Migamins.new(30,0,0,0,0),
+  Migamins.new(40,0,0,20,0),
   Migamins.new(18,0,0,6,0),
-  Migamins.new(0,0,0,40,0),
+  Migamins.new(0,0,0,30,0),
   Migamins.new(0,0,0,18,0),
   Migamins.new(0,0,0,12,0),
 ]
 
+data = CSV.read('data/ingredients.csv', headers: true)
+ingredients = data.map do |row|
+  Migamins.new(
+    *[row[2], row[3], row[4], row[5], row[6]].map(&:to_i)
+  )
+end
+
 ingredients = ingredients.map {|x| [x, 100] }.to_h
 
-c = Cauldron.new(225, 8)
+pp ingredients
+
+c = Cauldron.new(320, 8)
 
 heap = Containers::MaxHeap.new
 seen = Set.new
 target_ratios = [0.5, 0.5, 0, 0, 0]
 target_ratios = [0.5, 0.0, 0, 0.5, 0]
+target_ratios = [0.5, 0.0, 0.25, 0.25, 0]
 
 ingredients.each do |i, n|
   mix = Mix.singleton(i)

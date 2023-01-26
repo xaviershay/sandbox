@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -ex
+
+URL="https://docs.google.com/spreadsheets/d/1tYZT-PyzCWSIiFBqkrcc8OiLgSE8HlT8dJp4Qz2hxrU/gviz/tq?tqx=out:csv&sheet=Ingredients"
+
+curl "$URL" > data/ingredients.csv
