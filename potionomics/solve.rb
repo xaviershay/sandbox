@@ -2,7 +2,6 @@ require 'algorithms'
 require 'set'
 require 'csv'
 
-
 Migamins = Data.define(:r, :g, :y, :b, :p) do
   def to_a
     [r, g, y, b, p]
@@ -114,8 +113,6 @@ end
 
 ingredients = ingredients.map {|x| [x, 100] }.to_h
 
-pp ingredients
-
 c = Cauldron.new(320, 8)
 
 heap = Containers::MaxHeap.new
@@ -130,6 +127,7 @@ ingredients.each do |i, n|
   seen.add(mix)
 end
 
+puts "Solving for #{c} with #{target_ratios}"
 max_value = 0
 while mix = heap.pop
   # puts "EVAL: #{mix} #{mix.summed_ingredients.inspect}"
