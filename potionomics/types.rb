@@ -142,3 +142,5 @@ Mix = Data.define(:ingredients) do
 end
 
 Ingredient = Data.define(:name, :migamins)
+
+Recipe = Data.define(:name, :ratio)

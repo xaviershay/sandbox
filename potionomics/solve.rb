@@ -5,12 +5,15 @@ require 'pry'
 require 'pry-nav'
 require_relative "./types"
 
-target_ratios = [0.5, 0.5, 0, 0, 0] # Health Potion
-target_ratios = [0.5, 0.0, 0, 0.5, 0] # Ice Tonic
-target_ratios = [0.5, 0.0, 0.5, 0, 0] # Fire Tonic
-target_ratios = [0.5, 0.5, 0.0, 0, 0] # Health Tonic
-target_ratios = [0.5, 0.0, 0.25, 0.25, 0] # Poison Cure
-target_ratios = [0, 0.5, 0, 0.5, 0] # Thunder Tonic
+
+target = Recipe.new("Posion Cure", [0.5, 0.0, 0.25, 0.25, 0])
+target = Recipe.new("Thunder Tonic", [0, 0.5, 0, 0.5, 0])
+target = Recipe.new("Health Potion", [0.5, 0.5, 0, 0, 0])
+target = Recipe.new("Mana Potion", [0.0, 0.5, 0.5, 0, 0])
+target = Recipe.new("Fire Tonic", [0.5, 0, 0.5, 0, 0])
+target = Recipe.new("Ice Tonic", [0.5, 0, 0, 0.5, 0])
+
+target_ratios = target.ratio
 
 data = CSV.read('data/ingredients.csv', headers: true)
 ingredients = data.map do |row|
@@ -42,7 +45,7 @@ available_ingredients.each do |i|
   next if components_seen.include?(components)
 
   new_mix = Mix.singleton(i)
-  
+
   next if seen.include?(new_mix)
   next unless c.can_contain?(new_mix)
 
@@ -62,7 +65,7 @@ ingredients.each do |k, v|
   ]
 end
 puts
-puts "Solving for #{c}\n  with #{target_ratios}"
+puts "Solving for #{c.max_migamins} in #{c.max_ingredients}\n  with #{target.name} #{target_ratios}"
 puts
 max_value = 0
 
@@ -76,7 +79,7 @@ while mix = heap.pop
     next if components_seen.include?(components)
 
     new_mix = mix.add(Mix.singleton(i))
-    
+
     next if seen.include?(new_mix)
     next unless c.can_contain?(new_mix)
 
