@@ -84,14 +84,15 @@ Mix = Data.define(:ingredients) do
 
   def initialize(args)
     ingredients = args.fetch(:ingredients)
-    @summed_ingredients =
+    summed_ingredients =
       ingredients
       .reduce(Migamins.empty) {|y, (x, n)|
         z = y
         n.times { z = z.add(x) }
         z
       }
-    @count = @summed_ingredients.count
+    @count = summed_ingredients.count
+    @summed_ingredients = summed_ingredients
     super
   end
 
@@ -159,6 +160,13 @@ ingredients = [
   Migamins.new(0,0,0,12,0),
 ]
 
+target_ratios = [0.5, 0.5, 0, 0, 0] # Health Potion
+target_ratios = [0.5, 0.0, 0, 0.5, 0] # Ice Tonic
+target_ratios = [0.5, 0.0, 0.5, 0, 0] # Fire Tonic
+target_ratios = [0.5, 0.5, 0.0, 0, 0] # Health Tonic
+target_ratios = [0, 0.5, 0, 0.5, 0] # Thunder Tonic
+target_ratios = [0.5, 0.0, 0.25, 0.25, 0] # Poison Cure
+
 data = CSV.read('data/ingredients.csv', headers: true)
 ingredients = data.map do |row|
   Migamins.new(
@@ -166,15 +174,15 @@ ingredients = data.map do |row|
   )
 end
 
+ingredients.select! {|i|  !i.to_a.zip(target_ratios).any? {|i, r| i > 0 && r == 0 } }
+
 ingredients = ingredients.map {|x| [x, 100] }.to_h
 
 c = Cauldron.new(320, 8)
+c = Cauldron.new(405, 9)
 
 heap = Containers::MaxHeap.new
 seen = Set.new
-target_ratios = [0.5, 0.5, 0, 0, 0]
-target_ratios = [0.5, 0.0, 0, 0.5, 0]
-target_ratios = [0.5, 0.0, 0.25, 0.25, 0]
 
 ingredients.each do |i, n|
   mix = Mix.singleton(i)
@@ -182,6 +190,10 @@ ingredients.each do |i, n|
   seen.add(mix)
 end
 
+puts "Ingredient list:"
+ingredients.each do |i|
+  puts "  #{i.inspect}"
+end
 puts "Solving for #{c}\n  with #{target_ratios}"
 puts
 max_value = 0
