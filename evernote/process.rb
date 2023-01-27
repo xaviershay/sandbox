@@ -3,8 +3,10 @@ require 'date'
 require 'pp'
 require 'json'
 
+# ruby process.rb |  jq -r '.[] | [.instrument, .date, .minutes] | @csv' > data.csv  
+
 # Open the XML file
-file = File.open(File.expand_path('~/Documents/Evernote.enex'))
+file = File.open(File.expand_path('~/Downloads/Evernote.enex'))
 
 # Parse the XML document using Nokogiri
 doc = Nokogiri::XML(file)
