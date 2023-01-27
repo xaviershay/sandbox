@@ -1,6 +1,8 @@
 require 'algorithms'
 require 'set'
 require 'csv'
+require 'pry'
+require 'pry-nav'
 require_relative "./types"
 
 target_ratios = [0.5, 0.5, 0, 0, 0] # Health Potion
@@ -27,13 +29,28 @@ ingredients.select! {|i|
 ingredients = ingredients.map {|x| [x, 100] }.to_h
 
 c = Cauldron.new(320, 8)
-c = Cauldron.new(405, 9)
+c = Cauldron.new(405, 8)
 
 heap = Containers::MaxHeap.new
 seen = Set.new
+components_seen = Set.new
+available_ingredients = ingredients.keys.sort_by {|x| -x.migamins.count }
 
-ingredients.each do |i, n|
-  mix = Mix.singleton(i)
+new_mixes = []
+available_ingredients.each do |i|
+  components = i.migamins.ratio
+  next if components_seen.include?(components)
+
+  new_mix = Mix.singleton(i)
+  
+  next if seen.include?(new_mix)
+  next unless c.can_contain?(new_mix)
+
+  components_seen << components
+  new_mixes << new_mix
+end
+
+new_mixes.each do |mix|
   heap.push mix.value(target_ratios), mix
   seen.add(mix)
 end
@@ -48,11 +65,24 @@ puts
 puts "Solving for #{c}\n  with #{target_ratios}"
 puts
 max_value = 0
+
 while mix = heap.pop
-  # puts "EVAL: #{mix} #{mix.summed_ingredients.inspect}"
-  new_mixes = ingredients.keys
-    .map {|i| mix.add(Mix.singleton(i)) }
-    .select {|m| !seen.include?(m) && c.can_contain?(m) }
+  # puts "EVAL: #{mix.ingredients.keys.map(&:name)} #{mix.summed_ingredients.inspect}"
+  components_seen = Set.new
+
+  new_mixes = []
+  available_ingredients.each do |i|
+    components = i.migamins.ratio
+    next if components_seen.include?(components)
+
+    new_mix = mix.add(Mix.singleton(i))
+    
+    next if seen.include?(new_mix)
+    next unless c.can_contain?(new_mix)
+
+    components_seen << components
+    new_mixes << new_mix
+  end
 
   new_mixes.each do |m|
     heap.push m.value(target_ratios), m
@@ -74,5 +104,6 @@ while mix = heap.pop
       puts
       max_value = v
     end
+  else
   end
 end

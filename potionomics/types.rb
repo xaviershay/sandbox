@@ -48,6 +48,10 @@ Migamins = Data.define(:r, :g, :y, :b, :p) do
     r + g + y + b + p
   end
 
+  def ratio
+    to_a.map {|x| x.to_f / count }
+  end
+
   def add(other)
     self.class.new(
       r + other.r,
@@ -98,9 +102,9 @@ Mix = Data.define(:ingredients) do
       if e > 0.1
         -1000
       elsif e < 0.0000000001
-        1
-      else
         2
+      else
+        1
       end
 
     stop = stop_index(count) + stop_modifier
@@ -121,7 +125,7 @@ Mix = Data.define(:ingredients) do
   end
 
   def ratios
-    summed_ingredients.to_a.map {|x| x.to_f / count }
+    summed_ingredients.ratio
   end
 
   def add(other)
