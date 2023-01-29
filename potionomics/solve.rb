@@ -6,12 +6,15 @@ require 'pry-nav'
 require_relative "./types"
 
 
-target = Recipe.new("Posion Cure", [0.5, 0.0, 0.25, 0.25, 0])
 target = Recipe.new("Thunder Tonic", [0, 0.5, 0, 0.5, 0])
 target = Recipe.new("Health Potion", [0.5, 0.5, 0, 0, 0])
 target = Recipe.new("Mana Potion", [0.0, 0.5, 0.5, 0, 0])
 target = Recipe.new("Fire Tonic", [0.5, 0, 0.5, 0, 0])
+target = Recipe.new("Posion Cure", [0.5, 0.0, 0.25, 0.25, 0])
+target = Recipe.new("Stamina Potion", [0.5, 0, 0, 0, 0.5])
+target = Recipe.new("Silence Cure", [0, 0.5, 0.25, 0, 0.25])
 target = Recipe.new("Ice Tonic", [0.5, 0, 0, 0.5, 0])
+target = Recipe.new("Drowsiness Cure", [0.25, 0.25, 0, 0.5, 0])
 
 target_ratios = target.ratio
 
@@ -31,8 +34,8 @@ ingredients.select! {|i|
 
 ingredients = ingredients.map {|x| [x, 100] }.to_h
 
+c = Cauldron.new(405, 9)
 c = Cauldron.new(320, 8)
-c = Cauldron.new(405, 8)
 
 heap = Containers::MaxHeap.new
 seen = Set.new
