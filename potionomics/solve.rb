@@ -15,6 +15,9 @@ target = Recipe.new("Stamina Potion", [0.5, 0, 0, 0, 0.5])
 target = Recipe.new("Silence Cure", [0, 0.5, 0.25, 0, 0.25])
 target = Recipe.new("Ice Tonic", [0.5, 0, 0, 0.5, 0])
 target = Recipe.new("Drowsiness Cure", [0.25, 0.25, 0, 0.5, 0])
+target = Recipe.new("Insight Enhancer", [0.4, 0.3, 0, 0, 0.3])
+target = Recipe.new("Tolerance Potion", [0, 0, 0.5, 0, 0.5])
+target = Recipe.new("Sleep Cure", [0, 0.5, 0.25, 0, 0.25])
 
 target_ratios = target.ratio
 
@@ -34,8 +37,9 @@ ingredients.select! {|i|
 
 ingredients = ingredients.map {|x| [x, 100] }.to_h
 
-c = Cauldron.new(405, 9)
 c = Cauldron.new(320, 8)
+c = Cauldron.new(540, 8)
+c = Cauldron.new(505, 9)
 
 heap = Containers::MaxHeap.new
 seen = Set.new
@@ -62,7 +66,7 @@ new_mixes.each do |mix|
 end
 
 puts "Ingredient list:"
-ingredients.each do |k, v|
+ingredients.sort_by {|x, _| -x.migamins.count }.each do |k, v|
   puts "  #{v} * %-10s #{k.name}" % [
     k.migamins.inspect
   ]
@@ -86,7 +90,7 @@ while mix = heap.pop
     next if seen.include?(new_mix)
     next unless c.can_contain?(new_mix)
 
-    components_seen << components
+    components_seen << components if (c.max_migamins - i.migamins.count) >= i.migamins.count * 2
     new_mixes << new_mix
   end
 
