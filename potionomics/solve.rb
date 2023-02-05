@@ -7,7 +7,6 @@ require_relative "./types"
 
 
 target = Recipe.new("Thunder Tonic", [0, 0.5, 0, 0.5, 0])
-target = Recipe.new("Health Potion", [0.5, 0.5, 0, 0, 0])
 target = Recipe.new("Mana Potion", [0.0, 0.5, 0.5, 0, 0])
 target = Recipe.new("Fire Tonic", [0.5, 0, 0.5, 0, 0])
 target = Recipe.new("Posion Cure", [0.5, 0.0, 0.25, 0.25, 0])
@@ -27,6 +26,7 @@ target = Recipe.new("Insight Enhancer", [0.4, 0.3, 0, 0, 0.3])
 target = Recipe.new("Tolerance Potion", [0, 0, 0.5, 0, 0.5])
 
 target = Recipe.new("Alertness Enhancer", [0.3, 0.4, 0.3, 0, 0])
+target = Recipe.new("Health Potion", [0.5, 0.5, 0, 0, 0])
 
 target_ratios = target.ratio
 
@@ -92,6 +92,9 @@ while mix = heap.pop
 
   new_mixes = []
   available_ingredients.each do |i|
+    quantity = ingredients[i] - mix.ingredients.fetch(i, 0)
+    next unless quantity > 0
+
     components = i.migamins.ratio
     next if components_seen.include?(components)
 
