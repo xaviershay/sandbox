@@ -25,10 +25,13 @@ target = Recipe.new("Insight Enhancer", [0.4, 0.3, 0, 0, 0.3])
 # 2 x Superior with 1/3/4
 target = Recipe.new("Tolerance Potion", [0, 0, 0.5, 0, 0.5])
 
-target = Recipe.new("Alertness Enhancer", [0.3, 0.4, 0.3, 0, 0])
 target = Recipe.new("Health Potion", [0.5, 0.5, 0, 0, 0])
+target = Recipe.new("Alertness Enhancer", [0.3, 0.4, 0.3, 0, 0])
 
 target_ratios = target.ratio
+
+enhancer = [nil, -1, -1, -1, nil]
+enhancer = [nil, nil, nil, nil, nil]
 
 data = CSV.read('data/ingredients.csv', headers: true)
 ingredients = data.map do |row|
@@ -36,12 +39,18 @@ ingredients = data.map do |row|
     row[0],
     Migamins.new(
       *[row[2], row[3], row[4], row[5], row[6]].map(&:to_i)
+    ),
+    Enhancers.from_csv(
+      *[row[7], row[8], row[9], row[10], row[11]].map(&:to_i)
     )
   )
 end
 
 ingredients.select! {|i|
   !i.migamins.to_a.zip(target_ratios).any? {|i, r| i > 0 && r == 0 }
+}
+ingredients.select! {|i|
+  i.enhancers.match?(enhancer)
 }
 
 ingredients = ingredients.map {|x| [x, 100] }.to_h
@@ -118,7 +127,9 @@ while mix = heap.pop
       stop = stop_for(mix.value(target_ratios))
       puts "CANDIDATE: value=#{mix.count} ingredients=#{mix.ingredient_count} quality=#{stop.label}"
       puts "  #{mix.summed_ingredients.inspect}"
+      puts "  #{mix.enhancers.inspect}"
       puts
+
       mix.ingredients.each do |k, v|
         puts "  #{v} * %-10s #{k.name}" % [
           k.migamins.inspect

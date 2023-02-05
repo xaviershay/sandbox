@@ -95,6 +95,7 @@ end
 Mix = Data.define(:ingredients) do
   attr_reader :count
   attr_reader :summed_ingredients
+  attr_reader :enhancers
 
   def initialize(args)
     ingredients = args.fetch(:ingredients)
@@ -107,6 +108,9 @@ Mix = Data.define(:ingredients) do
       }
     @count = summed_ingredients.count
     @summed_ingredients = summed_ingredients
+    @enhancers = ingredients.keys.map(&:enhancers).reduce(Enhancers.empty) {|y, x|
+      y.merge(x)
+    }
     super
   end
 
@@ -155,6 +159,57 @@ Mix = Data.define(:ingredients) do
   end
 end
 
-Ingredient = Data.define(:name, :migamins)
+Ingredient = Data.define(:name, :migamins, :enhancers)
+Enhancers = Data.define(:a, :b, :c, :d, :e) do
+  def self.from_csv(*args)
+    new(*args.map {|x|
+      if x == ""
+        nil
+      else
+        x.to_i
+      end
+    })
+  end
+
+  def self.empty
+    new(nil, nil, nil, nil, nil)
+  end
+
+  def to_a
+    [a, b, c, d, e]
+  end
+
+  def match?(filter)
+    filter.zip(to_a).all? {|f, v|
+      f.nil? || f == -1 && v != -1
+    }
+  end
+
+  def inspect
+    f = ->(x) {
+      case x
+      when nil
+        "o"
+      when -1
+        "-"
+      when 1
+        "+"
+      end
+    }
+    "<#{to_a.map(&f).join(" ")}>"
+  end
+
+  def merge(other)
+    Enhancers.new(*to_a.zip(other.to_a).map {|a, b|
+      if a == -1 || b == -1
+        -1
+      elsif a == 1 || b == 1
+        1
+      else
+        nil
+      end
+    })
+  end
+end
 
 Recipe = Data.define(:name, :ratio)
