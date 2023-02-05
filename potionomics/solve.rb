@@ -15,9 +15,18 @@ target = Recipe.new("Stamina Potion", [0.5, 0, 0, 0, 0.5])
 target = Recipe.new("Silence Cure", [0, 0.5, 0.25, 0, 0.25])
 target = Recipe.new("Ice Tonic", [0.5, 0, 0, 0.5, 0])
 target = Recipe.new("Drowsiness Cure", [0.25, 0.25, 0, 0.5, 0])
-target = Recipe.new("Insight Enhancer", [0.4, 0.3, 0, 0, 0.3])
-target = Recipe.new("Tolerance Potion", [0, 0, 0.5, 0, 0.5])
 target = Recipe.new("Sleep Cure", [0, 0.5, 0.25, 0, 0.25])
+
+
+# Supeior with 2/3/5
+target = Recipe.new("Seeking Enhancer", [0.0, 0.0, 0.3, 0.4, 0.3])
+target = Recipe.new("Dowsing Enhancer", [0.3, 0.0, 0, 0.3, 0.4])
+target = Recipe.new("Insight Enhancer", [0.4, 0.3, 0, 0, 0.3])
+
+# 2 x Superior with 1/3/4
+target = Recipe.new("Tolerance Potion", [0, 0, 0.5, 0, 0.5])
+
+target = Recipe.new("Alertness Enhancer", [0.3, 0.4, 0.3, 0, 0])
 
 target_ratios = target.ratio
 
@@ -37,9 +46,10 @@ ingredients.select! {|i|
 
 ingredients = ingredients.map {|x| [x, 100] }.to_h
 
-c = Cauldron.new(320, 8)
 c = Cauldron.new(540, 8)
 c = Cauldron.new(505, 9)
+c = Cauldron.new(675, 10)
+c = Cauldron.new(320, 8)
 
 heap = Containers::MaxHeap.new
 seen = Set.new
