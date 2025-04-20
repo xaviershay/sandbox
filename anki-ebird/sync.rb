@@ -17,7 +17,7 @@ require 'json'
 require 'shellwords'
 
 class AnkiEBirdTagger
-  ANKI_CONNECT_URL = 'http://192.168.1.246:8765/'
+  ANKI_CONNECT_URL = 'http://192.168.1.164:8765/'
 
   def initialize(anki_path:, ebird_csv_path:)
     @anki_path = Pathname.new(anki_path)
@@ -141,7 +141,11 @@ class AnkiEBirdTagger
 
   # Not sure how this would happen yet, but differences in names between data sets
   REPLACEMENTS = {
-    "Rock Pigeon (Feral Pigeon)" => "Rock Pigeon"
+    "Rock Pigeon (Feral Pigeon)" => "Rock Pigeon",
+    "Australasian/Hoary-headed Grebe" => "Australasian Grebe",
+    "Mallard (Domestic type)" => "Mallard",
+    "Muscovy Duck (Domestic type)" => "Muscovy Duck",
+    "Eastern Cattle-Egret" => "Eastern Cattle Egret"
   }
 
   def tag_observed_cards(dry_run: true)
