@@ -1,0 +1,3 @@
+#!/bin/sh
+
+cd out && exec python3 -m http.server 8000
