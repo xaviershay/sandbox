@@ -1,3 +1,11 @@
+<style>
+  figcaption {
+    text-align: center;
+    font-size: 80%;
+    font-style: italic;
+  }
+</style>
+
 Using an unmarked straight ruler and a compass we can draw straight lines
 connecting any two points, and draw circles with their centre at a point and
 arc lying on another point. By applying these two basic operations a finite
@@ -13,45 +21,40 @@ Starting with two points $(0,0)$ and $(1,0)$, connect them with a line, then
 draw a circle around the right-most point. They intersect at $(2, 0)$. Repeating
 this procedure in both directions gives us all the integers along the x-axis.
 
+<figure>
 \begin{tikzpicture}[scale=3.0]
   % Draw x-axis
-  \draw[<->, black, thick] (-0.5,0) -- (4.5,0);
+  \draw[<->, black, thick] (-1.5,0) -- (3.5,0);
   
   \begin{scope}
-    \clip (-0.4,-1) rectangle (1,1);
-    \draw[black!40, thick, dashed] (0,0) circle (1);
+    \clip (-1.4,-1) rectangle (0,1);
+    \draw[black!40, thick, dashed] (-1,0) circle (1);
   \end{scope}
-  % Draw compass circle from (1,0) with radius 1
+
+  \draw[black, thick] (0,0) circle (1);
   \draw[black, thick] (1,0) circle (1);
-  
-  % Draw compass circle from (2,0) with radius 1 (to show repetition)
   \draw[black, thick] (2,0) circle (1);
-  \draw[black, thick] (3,0) circle (1);
   
   \begin{scope}
-    \clip (3,-1) rectangle (4.4,1);
-    \draw[black!40, thick, dashed] (4,0) circle (1);
+    \clip (2,-1) rectangle (3.4,1);
+    \draw[black!40, thick, dashed] (3,0) circle (1);
   \end{scope}
   
-  % Labels with white background (drawn after circles and points)
-  \node[below=2pt,fill=white] at (0,0) {$(-1,0)$};
-  \node[below=2pt,fill=white] at (1,0) {$(0,0)$};
-  \node[below=2pt,fill=white] at (2,0) {$(1,0)$};
-  \node[below=2pt,fill=white] at (3,0) {$(2,0)$};
-  \node[below=2pt,fill=white] at (4,0) {$(3,0)$};
-  
-  % Mark points
-  \fill (0,0) circle (1pt);
-  \fill (1,0) circle (1pt);
-  \fill (2,0) circle (1pt);
-  \fill (3,0) circle (1pt);
-  \fill (4,0) circle (1pt);
+  % Labels with white background and points (drawn after circles)
+  \foreach \x in {-1,0,1,2,3} {
+    \node[below right=2pt,font=\Large] at (\x,0) {$(\x,0)$};
+    \fill (\x,0) circle (1pt);
+  }
 \end{tikzpicture}
+
+  <figcaption>Using repeated circles to construct the integers.</figcaption>
+</figure>
 
 Let's add a more interesting point. Keep our initial circle around $(0, 0)$
 with radius $1$, and draw a new circle around $(2, 0)$ with radius $2$. Where do these
 two circles intersect?
 
+<figure>
 \begin{tikzpicture}[scale=3.0]
   % Draw x-axis
   \draw[<->, black, thick] (-1.5,0) -- (4.5,0);
@@ -60,24 +63,28 @@ two circles intersect?
   \draw[black, thick] (2,0) circle (2);
   
   % Labels with white background (drawn after circles and points)
-  \node[below=2pt,fill=white] at (0,0) {$(0,0)$};
-  \node[below=2pt,fill=white] at (1,0) {$(1,0)$};
-  \node[below=2pt,fill=white] at (2,0) {$(2,0)$};
-  % Mark and label the circle intersection at (1/4, sqrt(15)/4)
-  \pgfmathsetmacro{\interx}{0.25}
-  \pgfmathsetmacro{\intery}{sqrt(15)/4}
-  \fill[black] (\interx,\intery) circle (1pt);
-  \node[above=4pt,right=5pt] at (\interx,\intery) {$???$};
+  \node[below right=2pt,font=\Large] at (0,0) {$(0,0)$};
+  \node[below right=2pt,font=\Large] at (1,0) {$(1,0)$};
+  \node[below right=2pt,font=\Large] at (2,0) {$(2,0)$};
 
-  \pgfmathsetmacro{\intery}{-sqrt(15)/4}
-  \fill[black] (\interx,\intery) circle (1pt);
-  \node[above=11pt,right=-3pt] at (\interx,\intery) {$???$};
-  
   % Mark points
   \fill (0,0) circle (1pt);
   \fill (1,0) circle (1pt);
   \fill (2,0) circle (1pt);
+
+  % Mark and label the circle intersection at (1/4, sqrt(15)/4)
+  \pgfmathsetmacro{\interx}{0.25}
+  \pgfmathsetmacro{\intery}{sqrt(15)/4}
+  \fill[black] (\interx,\intery) circle (1pt);
+  \node[above=4pt,right=5pt,font=\Large] at (\interx,\intery) {$???$};
+
+  \pgfmathsetmacro{\intery}{-sqrt(15)/4}
+  \fill[black] (\interx,\intery) circle (1pt);
+  \node[above=15pt,right=-5pt,font=\Large] at (\interx,\intery) {$???$};
+  
 \end{tikzpicture}
+<figcaption>Intersecting two circles of different radius to find interesting points.</figcaption>
+</figure>
 
 Each circle can be represented by an equation, and solving when they are equal gives us our two intersection points.
 
@@ -88,12 +95,11 @@ x^2 + y^2 &= 1  \\
 \end{align}
 $$
 
-Subtracting $(1)$ from $(2)$ solves for $x$:
+Subtracting $(1)$ from $(2)$ cancels out the squared terms and solves for $x$:
 
 $$\begin{align*}
 (x - 2)^2 + y^2 - (x^2 + y^2) &= 2^2 - 1 \\
 x² - 4x + 4 + y^2 - x^2 - y^2 &= 3 \\
--4x + 4 &= 3 \\
 -4x &= -1 \\
 x &= \frac{1}{4}
 \end{align*}$$
@@ -101,8 +107,7 @@ x &= \frac{1}{4}
 Substituting back in to $(1)$ finds both $y$ coordinates:
 
 $$\begin{align*}
-(1/4)² + y² &= 1 \\
-1/16 + y² &= 1 \\
+(\frac{1}{4})² + y² &= 1 \\
 y² &= \frac{15}{16} \\
 y &= \frac{±\sqrt{15}}{4}
 \end{align*}$$
