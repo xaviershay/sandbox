@@ -167,6 +167,7 @@ This answers our original question, with a bonus result for good measure:
 
 * [A Book of Abstract Algebra](https://store.doverpublications.com/products/9780486474175) by Charles C. Pinter gives a more formal treatment of fields and their extensions, and specifically covers ruler and compass constructions in chapter 30.
 * [Ruler and compass constructions](https://dec41.user.srcf.net/h/II_M/galois_theory/2_2) from Dexter Chua's class notes gives a shorter proof of the impossibility of doubling a cube.
+* [Euclidea](https://www.euclidea.xyz/en/game/packs) is a fun online game to explore ruler and compass construction.
 
 [^field]: This is a criminally casual and incomplete definition, but serves our purposes.
 [^2]: Note that we don't also need to add $\frac{-\sqrt{15}}{4}$, since that is already "covered" by $0 + -1·\frac{\sqrt{15}}{16}$.
