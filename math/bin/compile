@@ -1,3 +1,5 @@
 #!/bin/sh
 
-exec pandoc --metadata title="Ruler & Compass" --katex=https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/ --lua-filter=tikz-filter.lua -s ruler_and_compass.md -o out/output.html
+set -ex
+mkdir -p out/svg
+pandoc --metadata title="Ruler & Compass" --katex=https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/ --lua-filter=tikz-filter.lua -s ruler_and_compass.md -o out/output.html
