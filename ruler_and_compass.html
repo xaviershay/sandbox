@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Ruler &amp; Compass</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+  </style>
+  <script defer=""
+  src="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex@0.16.25/dist/katex.min.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Ruler &amp; Compass</h1>
+</header>
+<style>
+  figcaption {
+    text-align: center;
+    font-size: 80%;
+    font-style: italic;
+  }
+</style>
+<p>Using an unmarked straightedge and a compass, we can draw straight
+lines connecting any two points and draw circles centered at a point
+with an arc passing through another point. By applying these two basic
+operations a finite number of times, we can construct a wide variety of
+shapes and proofs: triangles, squares, and polygons with different
+numbers of sides. This has been known since ancient times. However, many
+constructions have proved elusive! Can we “square the circle”—that is,
+construct a square with the same area as a given circle? Can we double
+the size of a cube?</p>
+<p>Let’s see what makes these problems so tricky by first exploring the
+kinds of points we can create with just our ruler and compass.</p>
+<p>Starting with two points <span class="math inline">(0,0)</span> and
+<span class="math inline">(1,0)</span>, connect them with a line, then
+draw a circle around the rightmost point. They intersect at <span
+class="math inline">(2, 0)</span>. Repeating this procedure in both
+directions gives us all the integers along the x-axis.</p>
+<figure>
+<p><img src="svg/e92abc90e471a0ce25547a9cbab5a0a1884b31a1.svg" /></p>
+<figcaption>
+Using repeated circles to construct the integers.
+</figcaption>
+</figure>
+<p>Let’s add a more interesting point. Keep our initial circle around
+<span class="math inline">(0, 0)</span> with radius <span
+class="math inline">1</span>, and draw a new circle around <span
+class="math inline">(2, 0)</span> with radius <span
+class="math inline">2</span>. Where do these two circles intersect?</p>
+<figure>
+<p><img src="svg/125c6ccec9bfa05c18db0d2baea49575b8711caf.svg" /></p>
+<figcaption>
+Intersecting two circles of different radius to find interesting points.
+</figcaption>
+</figure>
+<p>Each circle can be represented by an equation, and solving for when
+they are equal gives us our two intersection points.</p>
+<p><span class="math display">
+\begin{align}
+x^2 + y^2 &amp;= 1  \\
+(x-2)^2 + y^2 &amp;= 2^2
+\end{align}
+</span></p>
+<p>Subtracting <span class="math inline">(1)</span> from <span
+class="math inline">(2)</span> cancels out the squared terms and solves
+for <span class="math inline">x</span>:</p>
+<p><span class="math display">\begin{align*}
+(x - 2)^2 + y^2 - (x^2 + y^2) &amp;= 2^2 - 1 \\
+x² - 4x + 4 + y^2 - x^2 - y^2 &amp;= 3 \\
+-4x &amp;= -1 \\
+x &amp;= \frac{1}{4}
+\end{align*}</span></p>
+<p>Substituting back into <span class="math inline">(1)</span> finds
+both <span class="math inline">y</span> coordinates:</p>
+<p><span class="math display">\begin{align*}
+(\frac{1}{4})² + y² &amp;= 1 \\
+y² &amp;= \frac{15}{16} \\
+y &amp;= \frac{±\sqrt{15}}{4}
+\end{align*}</span></p>
+<p>These are some interesting numbers! A rational value for <span
+class="math inline">x</span>, and two irrational square roots for <span
+class="math inline">y</span>.</p>
+<p>Can we reach a transcendental number, such as <span
+class="math inline">\pi</span>? We are drawing circles, so it seems like
+we should be able to. This is what we need to square the circle: a unit
+circle has area <span class="math inline">\pi</span>, so a square
+matching that area must have side length <span
+class="math inline">\sqrt{\pi}</span>.</p>
+<p>Alas, this is impossible! But it wasn’t until quite recently in the
+history of mathematics that anyone proved it. To do so, let us explore
+some more general results about the points we have been creating.</p>
+<h2 id="fields">Fields</h2>
+<p>First, observe that if we only have rationals, then any combination
+of addition, multiplication, subtraction, and division will only ever
+give us another rational. We can’t get <span
+class="math inline">\pi</span> with those alone. We call a set with this
+property, such as the rationals, a <em>field</em>.<a href="#fn1"
+class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<p>We were also able to produce a square root, but that used a new
+technique: finding the root of a polynomial (<span
+class="math inline">y^2 = \frac{15}{16}</span>). This number is not in
+our original field, but we can <em>extend</em> it to include this new
+element by taking every element in the original field (i.e., every
+rational number), both adding and multiplying it by the new element, and
+adding all the resulting elements into the original set. For example,
+this leads to numbers like <span class="math inline">1 +
+1·\frac{\sqrt{15}}{4}</span>, <span class="math inline">2 +
+1·\frac{\sqrt{15}}{4}</span>, <span class="math inline">\frac{1}{2} +
+\frac{3}{4}·\frac{\sqrt{15}}{4}</span>, etc., all being added to the
+original set of rationals. This new set also forms a field—combining any
+two elements from it results in a third element also from the set.<a
+href="#fn2" class="footnote-ref" id="fnref2"
+role="doc-noteref"><sup>2</sup></a></p>
+<p>This process can be repeated! We can extend this new field again with
+a different element (say, <span class="math inline">\sqrt{3}</span>) in
+the same manner.</p>
+<p>There are three things we can say about these extensions, which we
+will not prove:</p>
+<ol type="1">
+<li><p>Any particular field extension by polynomial root finding has a
+<em>degree</em>, which is the highest power in the simplest polynomial
+solved for the new element(s). For example, extending a field with <span
+class="math inline">\sqrt[3]{3}</span> would have degree 3, since <span
+class="math inline">x^3 - 3 = 0</span> is the simplest polynomial with
+that as a root.</p></li>
+<li><p>Extending a field by a transcendental number has <em>infinite
+degree</em>, because (by definition) such a number cannot be expressed
+with any finite set of powers.</p></li>
+<li><p>When extending a field twice in succession, multiply their
+degrees together to get the degree of the extensions considered
+together. Extending a field by <span class="math inline">\sqrt{2}</span>
+(degree 2) and then by <span class="math inline">\sqrt[3]{3}</span>
+(degree 3) gives a degree of <span class="math inline">2·3=6</span> for
+the combined extension.</p></li>
+</ol>
+<h2 id="field-construction">Field Construction</h2>
+<p>To return to our problem of constructing <span
+class="math inline">\pi</span>: If we can characterise the possible
+field extensions from our ruler and compass operations, we can show
+which extension degrees are possible … and therefore also which ones are
+impossible.</p>
+<p>A line can be represented by an equation <span class="math inline">y
+= ax + b</span>. A circle by <span class="math inline">(x - a)^2 + (y -
+b)^2 = r^2</span>. The intersection of two lines can be found by solving
+simultaneous equations:</p>
+<p><span class="math display">\begin{align*}
+y_1 &amp;= ax_1 + b \\
+y_2 &amp;= cx_2 + d
+\end{align*}</span></p>
+<p>This is clearly a linear equation, meaning the solution can be found
+with our fundamental operations of addition, multiplication,
+subtraction, and division. Therefore, the result will remain in our
+field and no extension is necessary. Put another way, if we start with
+only rational numbers, using line intersection alone we can only ever
+get more rational numbers.</p>
+<p>We saw above that the intersection of two circles can be found by
+solving a polynomial with highest power 2. This implies the field
+extension needed to include the new element will also be of degree
+2.</p>
+<p>A circle and a line intersection results in a similar polynomial
+equation, also leading to an extension with degree 2.</p>
+<p>These are the only three possible operations, and using them we only
+found a way to extend our field by a degree of 2. We know that multiple
+extensions will multiply degrees together, so we can conclude that
+<strong>our degree will always be a power of 2!</strong></p>
+<p>This answers our original question, with a bonus result for good
+measure:</p>
+<ul>
+<li><p>Since we must only use a finite number of operations, there is no
+path to an extension with infinite degree, so it is <strong>impossible
+to construct transcendental numbers</strong> such as <span
+class="math inline">sqrt(\pi)</span> and <span
+class="math inline">e</span>.</p></li>
+<li><p>We can find square roots, fourth roots, eighth roots, and so
+on—but not cube roots, since that would require a power of 2 to be
+divisible by 3. This proves it <strong>impossible to double the volume
+of a unit cube</strong>, since it would require an edge length of <span
+class="math inline">\sqrt[3]{2}</span>.</p></li>
+</ul>
+<h2 id="references-and-further-reading">References and Further
+Reading</h2>
+<ul>
+<li><a
+href="https://store.doverpublications.com/products/9780486474175">A Book
+of Abstract Algebra</a> by Charles C. Pinter gives a more formal
+treatment of fields and their extensions, and specifically covers ruler
+and compass constructions in chapter 30.</li>
+<li><a href="https://dec41.user.srcf.net/h/II_M/galois_theory/2_2">Ruler
+and compass constructions</a> from Dexter Chua’s class notes gives a
+shorter proof of the impossibility of doubling a cube.</li>
+<li><a href="https://www.euclidea.xyz/en/game/packs">Euclidea</a> is a
+fun online game to explore ruler and compass construction.</li>
+</ul>
+<section class="footnotes footnotes-end-of-document"
+role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>This is a criminally casual and
+incomplete definition, but serves our purposes.<a href="#fnref1"
+class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>Note that we don’t also need to add
+<span class="math inline">\frac{-\sqrt{15}}{4}</span>, since that is
+already “covered” by <span class="math inline">0 +
+-1·\frac{\sqrt{15}}{16}</span>.<a href="#fnref2" class="footnote-back"
+role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+</body>
+</html>
