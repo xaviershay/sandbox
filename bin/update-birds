@@ -1,0 +1,105 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# update-birds: Download eBird export, sync data and photos to remote, and start remote dev with port forwarding.
+#
+# Usage:
+#   bin/update-birds <ebird_export_zip_url>
+#
+# Env overrides (optional):
+#   REMOTE_HOST   - SSH host to deploy to (default: 192.168.1.6)
+#   PHOTO_SRC     - Local photo glob to rsync (default: /mnt/c/Users/Xavier/Photos/Gallery/*.jpg)
+#
+
+if [[ ${1:-} == "-h" || ${1:-} == "--help" || ${1:-} == "" ]]; then
+	echo "Usage: bin/update-birds <ebird_export_zip_url>" >&2
+	exit 1
+fi
+
+URL="$1"
+REMOTE_HOST="${REMOTE_HOST:-192.168.1.6}"
+PHOTO_SRC="${PHOTO_SRC:-/mnt/c/Users/Xavier/Photos/Gallery/*.jpg}"
+
+# Resolve repo paths
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+CACHE_DIR="$REPO_ROOT/cache"
+DATA_DIR="$REPO_ROOT/anki-ebird/data"
+DEST_CSV="$DATA_DIR/MyEBirdData.csv"
+
+mkdir -p "$CACHE_DIR" "$DATA_DIR"
+
+# Verify required tools
+need_cmd() { command -v "$1" >/dev/null 2>&1 || { echo "Missing required command: $1" >&2; exit 1; }; }
+need_cmd unzip
+need_cmd ssh
+need_cmd scp
+need_cmd rsync
+if ! command -v curl >/dev/null 2>&1 && ! command -v wget >/dev/null 2>&1; then
+	echo "Missing required command: curl or wget" >&2
+	exit 1
+fi
+
+ZIP_NAME="$(basename "$URL")"
+ZIP_PATH="$CACHE_DIR/$ZIP_NAME"
+
+echo "==> Downloading eBird export"
+if [[ -f "$ZIP_PATH" ]]; then
+	echo "    Using cached: $ZIP_PATH"
+else
+    echo "    curl -L --fail -o '$ZIP_PATH' '$URL'"
+    curl -L --fail -o "$ZIP_PATH" "$URL"
+fi
+
+echo "==> Extracting CSV to $DATA_DIR (overwriting MyEBirdData.csv)"
+tmp_extract_dir="$(mktemp -d)"
+trap 'rm -rf "$tmp_extract_dir"' EXIT
+
+# Extract only the MyEBirdData*.csv from the zip, junking paths to avoid subdirs
+if ! unzip -o -j "$ZIP_PATH" 'MyEBirdData*.csv' -d "$tmp_extract_dir" >/dev/null; then
+	echo "Failed to unzip CSV from $ZIP_PATH" >&2
+	exit 1
+fi
+
+extracted_csv=""
+shopt -s nullglob
+for f in "$tmp_extract_dir"/MyEBirdData*.csv; do
+	extracted_csv="$f"
+	break
+done
+shopt -u nullglob
+
+if [[ -z "$extracted_csv" ]]; then
+	echo "No MyEBirdData CSV found in archive $ZIP_PATH" >&2
+	exit 1
+fi
+
+# Move/overwrite destination CSV
+mv -f "$extracted_csv" "$DEST_CSV"
+echo "    Wrote: $DEST_CSV"
+
+echo "==> Updating Anki"
+cd anki-ebird && bundle exec ruby sync.rb --anki-path /mnt/c/Users/Xavier/AppData/Roaming/Anki2/User\ 1/collection.anki2 --ebird-csv data/MyEBirdData.csv --no-dry-run
+
+echo "==> Copying CSV to $REMOTE_HOST:~/code/bird-gallery/data/MyEBirdData.csv"
+scp "$DEST_CSV" "$REMOTE_HOST:~/code/bird-gallery/data/MyEBirdData.csv"
+
+echo "==> Rsyncing photos to $REMOTE_HOST:~/code/bird-gallery/data/photos/"
+# Allow empty match without passing literal *.jpg to rsync
+shopt -s nullglob
+photo_files=( $PHOTO_SRC )
+shopt -u nullglob
+if (( ${#photo_files[@]} == 0 )); then
+	echo "    No photos matched: $PHOTO_SRC (continuing)"
+else
+	rsync -av "${photo_files[@]}" "$REMOTE_HOST:~/code/bird-gallery/data/photos/"
+fi
+
+echo "==> Running remote update"
+ssh "$REMOTE_HOST" "cd code/bird-gallery && bin/update"
+
+echo "==> Starting remote dev with port forwarding localhost:8787 -> $REMOTE_HOST:8787"
+echo "    Press Ctrl+C to stop the forwarded dev session."
+ssh -L 8787:localhost:8787 "$REMOTE_HOST" "cd code/bird-gallery && bin/dev"
+

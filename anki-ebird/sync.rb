@@ -142,10 +142,12 @@ class AnkiEBirdTagger
   # Not sure how this would happen yet, but differences in names between data sets
   REPLACEMENTS = {
     "Rock Pigeon (Feral Pigeon)" => "Rock Pigeon",
+    "pigeon/dove sp." => "Rock Pigeon",
     "Australasian/Hoary-headed Grebe" => "Australasian Grebe",
     "Mallard (Domestic type)" => "Mallard",
     "Muscovy Duck (Domestic type)" => "Muscovy Duck",
-    "Eastern Cattle-Egret" => "Eastern Cattle Egret"
+    "Eastern Cattle-Egret" => "Eastern Cattle Egret",
+    "Gray/Chestnut Teal" => "Gray Teal"
   }
 
   def tag_observed_cards(dry_run: true)
@@ -159,7 +161,12 @@ class AnkiEBirdTagger
     
     observed_species.sort.each do |common_name|
       common_name = REPLACEMENTS[common_name] || common_name
-      data = card_data.fetch(common_name)
+      data = card_data.fetch(common_name, nil)
+
+      unless data
+        $stderr.puts "No card for #{common_name}"
+        next
+      end
 
       current_tags = data[:tags].split
       
